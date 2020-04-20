@@ -93,17 +93,10 @@ public class Main extends Application {
 		bt.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
-				try {
-					int ID = Integer.parseInt(idPrompt.getText());
+					String ID = idPrompt.getText();
 					// GET MOST RECENT WEIGHT DIFFERNECE AND GOT TO
 					// NEW WINDOW DISPLAYING DIFFERENCE
-				} catch (NumberFormatException e) {
-					Alert a = new Alert(AlertType.ERROR, "Invalid ID. Did not input an integer.", ButtonType.CLOSE);
-					a.show();
-				} finally {
 					wD.close();
-				}
-
 			}
 		});
 		root.setTop(hb);
@@ -155,7 +148,7 @@ public class Main extends Application {
 			@Override
 			public void handle(ActionEvent arg0) {
 				try {
-					int ID = Integer.parseInt(farmID.getText());
+					String ID = farmID.getText();
 					int oldWeightVal = Integer.parseInt(oldWeight.getText());
 					int newWeightVal = Integer.parseInt(newWeight.getText());
 					String[] oldDateArray = oldDate.getText().split("-");
@@ -164,9 +157,6 @@ public class Main extends Application {
 						throw new IllegalArgumentException();
 					}
 					// UPDATE FARM IN DATA STRUCTURE HERE
-				} catch (NumberFormatException e) {
-					Alert a = new Alert(AlertType.ERROR, "Did not input an integer when prompted.", ButtonType.CLOSE);
-					a.show();
 				} catch (IllegalArgumentException i) {
 					Alert a = new Alert(AlertType.ERROR, "Did not valid date format.", ButtonType.CLOSE);
 					a.show();
@@ -216,17 +206,14 @@ public class Main extends Application {
 			@Override
 			public void handle(ActionEvent arg0) {
 				try {
-					int ID = Integer.parseInt(farmID.getText());
+					String ID = farmID.getText();
 					int weightVal = Integer.parseInt(weight.getText());
 					String[] dateArray = date.getText().split("-");
 					if (dateArray.length != 3) {
 						throw new IllegalArgumentException();
 					}
 					// ADD NEW DATA IN HASHTABLE
-				} catch (NumberFormatException e) {
-					Alert a = new Alert(AlertType.ERROR, "Did not input an integer when prompted.", ButtonType.CLOSE);
-					a.show();
-				} catch (IllegalArgumentException i) {
+				}  catch (IllegalArgumentException i) {
 					Alert a = new Alert(AlertType.ERROR, "Did not valid date format.", ButtonType.CLOSE);
 					a.show();
 				} finally {

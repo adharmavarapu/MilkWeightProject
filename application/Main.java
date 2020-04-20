@@ -1,10 +1,20 @@
-package MilkWeightProject.application;
+package application;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
 import java.util.List;
+import java.util.regex.PatternSyntaxException;
 
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
@@ -45,9 +55,14 @@ public class Main extends Application {
 		root.setLeft(leftButtons);
 
 		// Set Right side of the main screen
-		Button weightDifference = new Button("", new Label("Update Data"));
+		VBox rightButtons = new VBox();
+		Button weightDifference = new Button("", new Label("Weight Difference"));
 		weightDifference.setOnAction(e -> weightDifferenceWindow(primaryStage));
-		root.setRight(weightDifference);
+		Button uploadData = new Button("", new Label("Upload Data"));
+		uploadData.setOnAction(e -> uploadFileWindow(primaryStage));
+		rightButtons.getChildren().addAll(weightDifference, uploadData);
+		rightButtons.setSpacing(15);
+		root.setRight(rightButtons);
 
 		// Finalize and set stage to main scene
 		Scene mainScene = new Scene(root);
@@ -64,6 +79,40 @@ public class Main extends Application {
 		wD.setTitle("Weight Difference");
 		wD.initModality(Modality.APPLICATION_MODAL);
 		wD.initOwner(primaryStage);
+
+		BorderPane root = new BorderPane();
+		Scene main = new Scene(root);
+		// For prompt and text input
+		HBox hb = new HBox();
+		TextField idPrompt = new TextField();
+		idPrompt.setPromptText("[Integer Value]");
+		idPrompt.setFocusTraversable(false);
+		hb.getChildren().addAll(new Label("Enter Farm ID: "), idPrompt);
+
+		Button bt = new Button("DONE"); // Done Button
+		bt.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				try {
+					int ID = Integer.parseInt(idPrompt.getText());
+					// GET MOST RECENT WEIGHT DIFFERNECE AND GOT TO
+					// NEW WINDOW DISPLAYING DIFFERENCE
+				} catch (NumberFormatException e) {
+					Alert a = new Alert(AlertType.ERROR, "Invalid ID. Did not input an integer.", ButtonType.CLOSE);
+					a.show();
+				} finally {
+					wD.close();
+				}
+
+			}
+		});
+		root.setTop(hb);
+		root.setBottom(bt);
+		hb.setAlignment(Pos.CENTER);
+		BorderPane.setAlignment(bt, Pos.BASELINE_CENTER);
+		wD.setHeight(125);
+		wD.setWidth(300);
+		wD.setScene(main);
 		wD.show();
 	}
 
@@ -76,6 +125,11 @@ public class Main extends Application {
 
 		BorderPane root = new BorderPane();
 
+		HBox hb0 = new HBox(); // HBox for farm ID line
+		TextField farmID = new TextField();
+		farmID.setPromptText("Farm ID");
+		hb0.getChildren().addAll(new Label("Enter Farm ID: "), farmID);
+		
 		HBox hb1 = new HBox(); // HBox for Previous Date line
 		TextField oldDate = new TextField();
 		oldDate.setPromptText("yyyy-mm-dd");
@@ -85,25 +139,48 @@ public class Main extends Application {
 		TextField newDate = new TextField();
 		newDate.setPromptText("yyyy-mm-dd");
 		hb2.getChildren().addAll(new Label("Enter New Date: "), newDate);
-		
+
 		HBox hb3 = new HBox(); // HBox for Old Weight
 		TextField oldWeight = new TextField();
 		oldWeight.setPromptText("Enter Weight");
 		hb3.getChildren().addAll(new Label("Enter Previous Weight: "), oldWeight);
-		
+
 		HBox hb4 = new HBox();
 		TextField newWeight = new TextField(); // HBox for new Weight
 		newWeight.setPromptText("Enter Weight: ");
 		hb4.getChildren().addAll(new Label("Enter New Weight: "), newWeight);
-		
+
 		Button bt = new Button("DONE"); // Done Button
-		
+		bt.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				try {
+					int ID = Integer.parseInt(farmID.getText());
+					int oldWeightVal = Integer.parseInt(oldWeight.getText());
+					int newWeightVal = Integer.parseInt(newWeight.getText());
+					String[] oldDateArray = oldDate.getText().split("-");
+					String[] newDateArray = newDate.getText().split("-");
+					if (oldDateArray.length != 3 || newDateArray.length != 3) {
+						throw new IllegalArgumentException();
+					}
+					// UPDATE FARM IN DATA STRUCTURE HERE
+				} catch (NumberFormatException e) {
+					Alert a = new Alert(AlertType.ERROR, "Did not input an integer when prompted.", ButtonType.CLOSE);
+					a.show();
+				} catch (IllegalArgumentException i) {
+					Alert a = new Alert(AlertType.ERROR, "Did not valid date format.", ButtonType.CLOSE);
+					a.show();
+				} finally {
+					uD.close();
+				}
+			}
+		});
 		VBox vb = new VBox();
-		vb.getChildren().addAll(hb1, hb2, hb3, hb4, bt);
+		vb.getChildren().addAll(hb0, hb1, hb2, hb3, hb4, bt);
 		vb.setSpacing(25);
-		
+
 		root.setCenter(vb);
-		
+
 		Scene sc = new Scene(root);
 		uD.setScene(sc);
 		uD.setHeight(500);
@@ -117,7 +194,6 @@ public class Main extends Application {
 		nD.setTitle("Add New Data");
 		nD.initModality(Modality.APPLICATION_MODAL);
 		nD.initOwner(primaryStage);
-
 		BorderPane root = new BorderPane();
 
 		HBox hb1 = new HBox(); // HBox for farm ID line
@@ -134,8 +210,30 @@ public class Main extends Application {
 		TextField weight = new TextField();
 		weight.setPromptText("Enter Weight");
 		hb3.getChildren().addAll(new Label("Enter Milk Weight: "), weight);
-
+		
 		Button bt = new Button("DONE"); // Done Button
+		bt.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				try {
+					int ID = Integer.parseInt(farmID.getText());
+					int weightVal = Integer.parseInt(weight.getText());
+					String[] dateArray = date.getText().split("-");
+					if (dateArray.length != 3) {
+						throw new IllegalArgumentException();
+					}
+					// ADD NEW DATA IN HASHTABLE
+				} catch (NumberFormatException e) {
+					Alert a = new Alert(AlertType.ERROR, "Did not input an integer when prompted.", ButtonType.CLOSE);
+					a.show();
+				} catch (IllegalArgumentException i) {
+					Alert a = new Alert(AlertType.ERROR, "Did not valid date format.", ButtonType.CLOSE);
+					a.show();
+				} finally {
+					nD.close();
+				}
+			}
+		});
 
 		VBox vb = new VBox(); // VBox to put all 4 elements together
 		vb.getChildren().addAll(hb1, hb2, hb3, bt);
@@ -149,7 +247,47 @@ public class Main extends Application {
 		nD.setHeight(350);
 		nD.show();
 	}
+	public void uploadFileWindow(Stage primaryStage) {
+		Stage uF = new Stage();
+		uF.setTitle("Upload Data");
+		uF.initModality(Modality.APPLICATION_MODAL);
+		uF.initOwner(primaryStage);
+		
+		BorderPane root = new BorderPane();
+		
+		HBox upload = new HBox(); // HBox for file input
+		TextField fileInput = new TextField();
+		fileInput.setPromptText("File path");
+		upload.getChildren().addAll(new Label("Enter Path of File: "), fileInput);
+		Button bt = new Button("DONE"); // Done Button
+		
+		bt.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				try {
+					File f = new File(fileInput.getText());
+					// ADD NEW DATA IN HASHTABLE
+				} catch (Exception e) {
+					Alert a = new Alert(AlertType.ERROR, "Did not input valid file path.", ButtonType.CLOSE);
+					a.show();
+				} finally {
+					uF.close();
+				}
+			}
+		});
+		
+		VBox vb = new VBox(); // VBox to put all 4 elements together
+		vb.getChildren().addAll(upload, bt);
+		vb.setSpacing(25);
 
+		root.setCenter(vb);
+		
+		Scene scene = new Scene(root);
+		uF.setScene(scene);
+		uF.setWidth(500);
+		uF.setHeight(175);
+		uF.show();
+	}
 	/**
 	 * Method that will run upon program execution
 	 * 

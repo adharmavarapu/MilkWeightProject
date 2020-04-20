@@ -7,7 +7,7 @@ Project name: Milk Weight
 Team Members:
 1. Shreyam Taneja, 002, and staneja3@wisc.edu
 2. Atharva Kudkilwar, 002, and kudkilwar@wisc.edu
-3. member name3, lecture, and email3@wisc.edu
+3. Abhilash Dharmavarapu, 001, and dharmavarapu@wisc.edu
 4. member name4, lecture, and email4@wisc.edu
 
 Which team members were on same xteam together?

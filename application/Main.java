@@ -126,8 +126,9 @@ public class Main extends Application {
 		year2.setFocusTraversable(false);
 		Button go2 = new Button("Go");
 		userInput2.getChildren().addAll(month, year2, go2);
-		go2.setOnAction(e-> onMonthFilter(month.getText(), year2.getText(), byMonth));
-		byMonth.getChildren().addAll(userInput2);
+		ListView results2 = new ListView();
+		go2.setOnAction(e-> onMonthFilter(month.getText(), year2.getText(), results2));
+		byMonth.getChildren().addAll(userInput2, results2);
 		
 		//Set the filter of all farms section
 		VBox allFarms = new VBox();
@@ -165,17 +166,21 @@ public class Main extends Application {
 		}
 		return lv;
 	}
-	private void onMonthFilter(String month, String year, VBox byMonth) {
-		HBox hb = new HBox();
-		int min = (int) (Math.random()*5000);
-		int max = (int) (Math.random()*10000);
-		double avg = (min+max)/2.0;
-
-		Label analysis = new Label("Min: " + min + ", Max: " + max + ", Avg: " + avg);
-		hb.getChildren().addAll(analysis);
-		byMonth.getChildren().add(hb);
+	private void onMonthFilter(String month, String year, ListView results) {
+		results.getItems().clear();
+		for(int i=0; i < 20; i++) {
+			HBox hb = new HBox();
+			int min = (int) (Math.random()*5000);
+			int max = (int) (Math.random()*10000);
+			double avg = (min+max)/2.0;
+			Label farm = new Label("Farm " + i + ": ");
+			Label analysis = new Label("Min: " + min + ", Max: " + max + ", Avg: " + avg);
+			hb.getChildren().addAll(farm, analysis);
+			results.getItems().add(hb);
+		}
 	}
 	private void onFarmFilter(String id, String year, ListView results) {
+		results.getItems().clear();
 		for(int i = 1; i < 13; i++) {
 			HBox hb = new HBox();
 			int min = (int) (Math.random()*5000);

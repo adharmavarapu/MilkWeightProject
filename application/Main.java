@@ -199,7 +199,7 @@ public class Main extends Application {
 		// For prompt and text input
 		HBox hb = new HBox();
 		TextField idPrompt = new TextField();
-		idPrompt.setPromptText("[Integer Value]");
+		idPrompt.setPromptText("[Unique String ID]");
 		idPrompt.setFocusTraversable(false);
 		hb.getChildren().addAll(new Label("Enter Farm ID: "), idPrompt);
 
@@ -337,12 +337,15 @@ public class Main extends Application {
 						if(dateArray[0].length() != 4 && dateArray[1].length() != 2 && dateArray[2].length() != 2) {
 							throw new IllegalArgumentException();
 						}
+						if(Integer.parseInt(dateArray[1]) > 12 || Integer.parseInt(dateArray[2]) > 31) {
+							throw new IllegalArgumentException();
+						}
 					}
 					// ADD REMOVE DATA IN HASHTABLE
 					Alert success = new Alert(AlertType.CONFIRMATION, "Data has been successfully removed", ButtonType.OK);
 					success .show();
 				}  catch (IllegalArgumentException i) {
-					Alert error = new Alert(AlertType.ERROR, "Did not valid date format.", ButtonType.CLOSE);
+					Alert error = new Alert(AlertType.ERROR, "Please follow format shown in text field.", ButtonType.CLOSE);
 					error.show();
 				} finally {
 					nD.close();
@@ -368,7 +371,7 @@ public class Main extends Application {
 					Alert success = new Alert(AlertType.CONFIRMATION, "Data has been successfully added", ButtonType.OK);
 					success .show();
 				}  catch (IllegalArgumentException i) {
-					Alert error = new Alert(AlertType.ERROR, "Did not valid date format.", ButtonType.CLOSE);
+					Alert error = new Alert(AlertType.ERROR, "Please follow format shown in text field.", ButtonType.CLOSE);
 					error.show();
 				} finally {
 					nD.close();
@@ -399,6 +402,7 @@ public class Main extends Application {
 		HBox upload = new HBox(); // HBox for file input
 		TextField fileInput = new TextField();
 		fileInput.setPromptText("File path");
+		fileInput.setFocusTraversable(false);
 		upload.getChildren().addAll(new Label("Enter Path of File: "), fileInput);
 		Button bt = new Button("DONE"); // Done Button
 		

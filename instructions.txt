@@ -1,5 +1,7 @@
 NOTE: ALL EXAMPLE DATA POINTS ARE RANDOM NUMBERS GENERATED WITHIN A RANGE
 
+To run program: run command-> make or make Default
+
 Add/Remove Data: Click on the "Add/Remove Data" button to go to a new window to input credentials required to create/remove a new Data Object. You will be prompted with confirmation if the insert is successful. If the credentials are out of range or not in the correct format, you will get a error message, and you must restart the application.
 
 Update Data: Click on the "Update Data" button to go to a new window to input credentials required to update data. The confirmation and error messages show up based on what was said in the "Add/Remove Data" instruction.

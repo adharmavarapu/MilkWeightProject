@@ -1,4 +1,10 @@
+Default:
+	make Compile
+	make Program
+	make clean
+Compile:
+	javac --module-path "/home/adharmavarapu/javafx-sdk-11.0.2/lib" --add-modules javafx.controls,javafx.fxml -classpath ".:application" -d . application/*.java 
 Program:
-	/usr/lib/jvm/jre-11-openjdk-11.0.6.10-1.el7_7.x86_64/bin/java --module-path /home/adharmavarapu/javafx-sdk-11.0.2/lib --add-modules javafx.controls,javafx.fxml -Dfile.encoding=UTF-8 -classpath /home/adharmavarapu/eclipse-workspace/MilkWeightProject:/home/adharmavarapu/javafx-sdk-11.0.2/lib/javafx.base.jar:/home/adharmavarapu/javafx-sdk-11.0.2/lib/javafx.controls.jar:/home/adharmavarapu/javafx-sdk-11.0.2/lib/javafx.fxml.jar:/home/adharmavarapu/javafx-sdk-11.0.2/lib/javafx.graphics.jar:/home/adharmavarapu/javafx-sdk-11.0.2/lib/javafx.media.jar:/home/adharmavarapu/javafx-sdk-11.0.2/lib/javafx.swing.jar:/home/adharmavarapu/javafx-sdk-11.0.2/lib/javafx.web.jar:/home/adharmavarapu/javafx-sdk-11.0.2/lib/javafx-swt.jar:/home/adharmavarapu/javafx-sdk-11.0.2/lib/src.zip application.Main
+	java --module-path "/home/adharmavarapu/javafx-sdk-11.0.2/lib" --add-modules javafx.controls,javafx.fxml -jar executable.jar
 clean:
-	rm -f *.class
+	rm -f application/*.class

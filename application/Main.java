@@ -81,6 +81,11 @@ public class Main extends Application {
 		primaryStage.setScene(mainScene);
 		primaryStage.show();
 	}
+	
+	/**
+	 * Method to create a new window for viewing data
+	 * @param primaryStage parent stage to set modality
+	 */
 	private void viewDataWindow(Stage primaryStage) {
 		Stage vD = new Stage();
 		vD.setTitle("Data Viewer");
@@ -157,6 +162,10 @@ public class Main extends Application {
 		vD.setWidth(1200);
 		vD.show();
 	}
+	/**
+	 * Helper method to get all the farms in the list view GUI object
+	 * @return listView that has all farms and shares
+	 */
 	private ListView getFarms() {
 		ListView lv = new ListView();
 		for(int i=0; i < 20; i++) {
@@ -166,6 +175,12 @@ public class Main extends Application {
 		}
 		return lv;
 	}
+	/**
+	 * Helper method to get all the farms and data associated with period of time
+	 * @param month month you are looking for
+	 * @param year year you are looking for
+	 * @param results listView object to update with the results
+	 */
 	private void onMonthFilter(String month, String year, ListView results) {
 		results.getItems().clear();
 		for(int i=0; i < 20; i++) {
@@ -179,6 +194,12 @@ public class Main extends Application {
 			results.getItems().add(hb);
 		}
 	}
+	/**
+	 * Helper method to get all data of a farm by month within a specific year
+	 * @param id Farm that you are looking for
+	 * @param year what year you want to observe monthly results in
+	 * @param results results listView object to update with the results
+	 */
 	private void onFarmFilter(String id, String year, ListView results) {
 		results.getItems().clear();
 		for(int i = 1; i < 13; i++) {
@@ -192,6 +213,11 @@ public class Main extends Application {
 			results.getItems().add(hb);
 		}
 	}
+	/**
+	 * Method to create a new window for seeing weight difference(most recent
+	 * increase or decrease)
+	 * @param primaryStage parent stage to set modality
+	 */
 	private void weightDifferenceWindow(Stage primaryStage) {
 		// CREATE WINDOW FOR WEIGHT DIFFERENCE
 		Stage wD = new Stage();
@@ -215,6 +241,8 @@ public class Main extends Application {
 					String ID = idPrompt.getText();
 					// GET MOST RECENT WEIGHT DIFFERNECE AND GOT TO
 					// NEW WINDOW DISPLAYING DIFFERENCE
+					Alert success = new Alert(AlertType.CONFIRMATION, "Most recent growth/decay is: " + (int) (Math.random()*5000), ButtonType.OK);
+					success .show();
 					wD.close();
 			}
 		});
@@ -227,7 +255,10 @@ public class Main extends Application {
 		wD.setScene(main);
 		wD.show();
 	}
-
+	/**
+	 * Method to create a new window for updating existing data
+	 * @param primaryStage parent stage to set modality
+	 */
 	private void updateDataWindow(Stage primaryStage) {
 		// CREATE WINDOW FOR UPDATE DATA
 		Stage uD = new Stage();
@@ -299,7 +330,11 @@ public class Main extends Application {
 		uD.setWidth(350);
 		uD.show();
 	}
-
+	/**
+	 * Method to create a new window for adding or removing data
+	 * increase or decrease)
+	 * @param primaryStage parent stage to set modality
+	 */
 	public void addRemoveDataWindow(Stage primaryStage) {
 		// CREATE WINDOW FOR NEW DATA
 		Stage nD = new Stage();
@@ -396,6 +431,11 @@ public class Main extends Application {
 		nD.setHeight(350);
 		nD.show();
 	}
+	/**
+	 * Method to create a new window for initializing data with file(CSV)
+	 * increase or decrease)
+	 * @param primaryStage parent stage to set modality
+	 */
 	public void uploadFileWindow(Stage primaryStage) {
 		Stage uF = new Stage();
 		uF.setTitle("Upload Data");

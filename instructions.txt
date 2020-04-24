@@ -1,0 +1,11 @@
+NOTE: ALL EXAMPLE DATA POINTS ARE RANDOM NUMBERS GENERATED WITHIN A RANGE
+
+Add/Remove Data: Click on the "Add/Remove Data" button to go to a new window to input credentials required to create/remove a new Data Object. You will be prompted with confirmation if the insert is successful. If the credentials are out of range or not in the correct format, you will get a error message, and you must restart the application.
+
+Update Data: Click on the "Update Data" button to go to a new window to input credentials required to update data. The confirmation and error messages show up based on what was said in the "Add/Remove Data" instruction.
+
+Recent Growth: Click on the "Recent Growth" button to go to a new window and input a farm ID to output the recent growth. It will output the data if available.
+
+Upload Data: Click on the "Upload Data" button to go to a new window and input file path(.csv) to intitialize data.
+
+View Results: Click on the "View Results" button to view results and possibles filter to select data. To see data type a filter or keep blank and click "Go" button to view analysis of the data.

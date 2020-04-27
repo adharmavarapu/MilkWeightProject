@@ -91,9 +91,11 @@ public class Farm {
 		updateList.add(new FarmUpdate("Start", date, 0, milkWeight));
 
 	}
+
 	/**
 	 * update farm and store changes
-	 * @param date date of update
+	 * 
+	 * @param date          date of update
 	 * @param newMilkWeight new value of weight
 	 */
 	public void updateFarm(String date, int newMilkWeight) {
@@ -101,17 +103,93 @@ public class Farm {
 		updateList.add(new FarmUpdate(prevUpdate.currDate, date, milkWeight, newMilkWeight));
 		milkWeight = newMilkWeight;
 	}
+
+	/**
+	 * Get the min, max, and avg milk weight of farm within a certain month and year
+	 * 
+	 * @param month month to filter for
+	 * @param year  year to filter for
+	 * @return double array that contains the min(0), max(1), avg(1)
+	 */
+	public double[] getMinMaxAvg(String month, String year) {
+		int sum = 0;
+		int count = 0;
+		int max = Integer.MIN_VALUE;
+		int min = Integer.MAX_VALUE;
+		for (FarmUpdate u : updateList) {
+			String[] currDate = u.currDate.split("-");
+			if (Integer.parseInt(currDate[0]) == Integer.parseInt(year)
+					&& Integer.parseInt(currDate[1]) == Integer.parseInt(month)) {
+				sum += u.currWeight;
+				count++;
+				if (u.currWeight > max) {
+					max = u.currWeight;
+				}
+				if (u.currWeight < min) {
+					min = u.currWeight;
+				}
+			}
+		}
+		return new double[] { min, max, (1.0 * sum / count) };
+	}
+
+	/**
+	 * W
+	 * @param oldDate
+	 * @param newDate
+	 * @param oldWeight
+	 * @param newWeight
+	 */
+	public void update(String oldDate, String newDate, int oldWeight, int newWeight) {
+		for (FarmUpdate u : updateList) {
+			if(oldDate.equals(u.prevDate) && newDate.equals(u.currDate)) {
+				u.prevWeight = oldWeight;
+				u.currWeight = newWeight;
+			}
+		}
+	}
+	
 	/**
 	 * get id of the farm
+	 * 
 	 * @return String representation of id
 	 */
 	public String getID() {
 		return farmID;
 	}
+
+	/**
+	 * Get the recent date of the last update
+	 * 
+	 * @return String representation of date
+	 */
 	public String getDate() {
-		return updateList.get(updateList.size()-1).currDate;
+		return updateList.get(updateList.size() - 1).currDate;
 	}
+
+	/**
+	 * Get the recent decrease/increase of the last update
+	 * 
+	 * @return integer, negative -> decay, positive -> growth
+	 */
+	public int getDifference() {
+		return updateList.get(updateList.size() - 1).getWeightDifference();
+	}
+	/**
+	 * Get the current milk weight of the farm
+	 * 
+	 * @return milk weight in integer form
+	 */
 	public int getWeight() {
 		return milkWeight;
+	}
+
+	/**
+	 * Get the updates of the farm
+	 * 
+	 * @return list of updates of the farm
+	 */
+	public List<FarmUpdate> getUpdates() {
+		return updateList;
 	}
 }

@@ -67,23 +67,21 @@ public class FarmTable implements HashTableADT<String, Farm>{
 	}
 	@Override
 	public Farm get(String key) {
-		// TODO Auto-generated method stub
 		return null;
 	}
+	
 	@Override
 	public int numKeys() {
 		// TODO Auto-generated method stub
-		return 0;
+		return size;
 	}
 	@Override
 	public double getLoadFactorThreshold() {
-		// TODO Auto-generated method stub
-		return 0;
+		return loadFactorThreshold;
 	}
 	@Override
 	public double getLoadFactor() {
-		// TODO Auto-generated method stub
-		return 0;
+		return 1.0*size/table.length;
 	}
 	@Override
 	public int getCapacity() {

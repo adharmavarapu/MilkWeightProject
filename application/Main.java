@@ -202,15 +202,23 @@ public class Main extends Application {
 	 */
 	private void onMonthFilter(String month, String year, ListView results) {
 		results.getItems().clear();
-		for (int i = 0; i < 20; i++) {
-			HBox hb = new HBox();
-			int min = (int) (Math.random() * 5000);
-			int max = (int) (Math.random() * 10000);
-			double avg = (min + max) / 2.0;
-			Label farm = new Label("Farm " + i + ": ");
-			Label analysis = new Label("Min: " + min + ", Max: " + max + ", Avg: " + avg);
-			hb.getChildren().addAll(farm, analysis);
-			results.getItems().add(hb);
+		Farm[] table = farmTable.getTable();
+		for (int i = 0; i < table.length; i++) {
+			Farm f = table[i];
+			if(f != null) {
+				HBox hb = new HBox();
+				double[] a = f.getMinMaxAvg(month, year);
+				System.out.println(Arrays.toString(a));
+				int min = (int) a[0];
+				int max = (int) a[1];
+				double avg = a[2];
+				if(min != Integer.MAX_VALUE && max != Integer.MIN_VALUE && avg != Double.NaN) {
+					Label farm = new Label(f.getID() + ": ");
+					Label analysis = new Label("Min: " + min + ", Max: " + max + ", Avg: " + avg);
+					hb.getChildren().addAll(farm, analysis);
+					results.getItems().add(hb);
+				}
+			}
 		}
 	}
 
@@ -223,15 +231,18 @@ public class Main extends Application {
 	 */
 	private void onFarmFilter(String id, String year, ListView results) {
 		results.getItems().clear();
+		Farm f = farmTable.get(id);
 		for (int i = 1; i < 13; i++) {
+			double[] a = f.getMinMaxAvg(Integer.toString(i), year);
 			HBox hb = new HBox();
-			int min = (int) (Math.random() * 5000);
-			int max = (int) (Math.random() * 10000);
-			double avg = (min + max) / 2.0;
-
-			Label analysis = new Label("Min: " + min + ", Max: " + max + ", Avg: " + avg);
-			hb.getChildren().addAll(new Label("Month " + i + ": "), analysis);
-			results.getItems().add(hb);
+			int min = (int) a[0];
+			int max = (int) a[1];
+			double avg = a[2];
+			if(min != Integer.MAX_VALUE && max != Integer.MIN_VALUE && avg != Double.NaN) {
+				Label analysis = new Label("Min: " + min + ", Max: " + max + ", Avg: " + avg);
+				hb.getChildren().addAll(new Label("Month " + i + ": "), analysis);
+				results.getItems().add(hb);
+			}
 		}
 	}
 
@@ -262,10 +273,11 @@ public class Main extends Application {
 			@Override
 			public void handle(ActionEvent arg0) {
 				String ID = idPrompt.getText();
-				// GET MOST RECENT WEIGHT DIFFERNECE AND GOT TO
+				// GET MOST RECENT WEIGHT DIFFERNECE AND GO TO
+				Farm f = farmTable.get(ID);
 				// NEW WINDOW DISPLAYING DIFFERENCE
 				Alert success = new Alert(AlertType.CONFIRMATION,
-						"Most recent growth/decay is: " + (int) (Math.random() * 5000), ButtonType.OK);
+						"Most recent growth/decay is: " + f.getDifference(), ButtonType.OK);
 				success.show();
 				wD.close();
 			}
@@ -333,12 +345,14 @@ public class Main extends Application {
 						throw new IllegalArgumentException();
 					}
 					// UPDATE FARM IN DATA STRUCTURE HERE
+					Farm f = farmTable.get(ID);
+					f.update(oldDate.getText(), newDate.getText(), oldWeightVal, newWeightVal);
 					Alert success = new Alert(AlertType.CONFIRMATION, "Data has been successfully updated",
 							ButtonType.OK);
 					success.show();
 
 				} catch (IllegalArgumentException i) {
-					Alert error = new Alert(AlertType.ERROR, "Did not valid date format.", ButtonType.CLOSE);
+					Alert error = new Alert(AlertType.ERROR, "Did not input valid date format.", ButtonType.CLOSE);
 					error.show();
 				} finally {
 					uD.close();

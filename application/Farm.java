@@ -101,4 +101,17 @@ public class Farm {
 		updateList.add(new FarmUpdate(prevUpdate.currDate, date, milkWeight, newMilkWeight));
 		milkWeight = newMilkWeight;
 	}
+	/**
+	 * get id of the farm
+	 * @return String representation of id
+	 */
+	public String getID() {
+		return farmID;
+	}
+	public String getDate() {
+		return updateList.get(updateList.size()-1).currDate;
+	}
+	public int getWeight() {
+		return milkWeight;
+	}
 }

@@ -25,12 +25,13 @@ package application;
  * Known Bugs: describe known unresolved bugs here
  */
 
+
 /**
  * Hash Table to store farm data
  * @author Abhilash Dharmavarapu, 
  *
  */
-public class FarmTable implements HashTableADT<String, Integer>{
+public class FarmTable implements HashTableADT<String, Farm>{
 	
 	private double loadFactorThreshold;
 	private Farm[] table;
@@ -41,47 +42,55 @@ public class FarmTable implements HashTableADT<String, Integer>{
 		table =  new Farm[41];
 		size = 0;
 	}
-	@Override
-	public void insert(String key, Integer value) {
-		// TODO Auto-generated method stub
-		
+	public Farm[] getTable() {
+		return table;
+	}
+	/**
+	 * Hashes the key based off the hashCode from Java and the table size
+	 * 
+	 * @param key         K key to hash
+	 * @param tableLength int current table size to hash
+	 * @return
+	 */
+	private int hash(String key, int tableLength) {
+		return Math.abs(key.hashCode()) % tableLength;
 	}
 
+	@Override
+	public void insert(String key, Farm value) {
+		
+	}
 	@Override
 	public boolean remove(String key) {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
 	@Override
-	public Integer get(String key) {
+	public Farm get(String key) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 	@Override
 	public int numKeys() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
 	@Override
 	public double getLoadFactorThreshold() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
 	@Override
 	public double getLoadFactor() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
 	@Override
 	public int getCapacity() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
 
 
 }

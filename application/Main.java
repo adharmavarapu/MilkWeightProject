@@ -2,9 +2,16 @@ package application;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -35,6 +42,7 @@ import javafx.stage.Stage;
 public class Main extends Application {
 	private List<String> args;
 	private static final String APP_TITLE = "Milk Weights";
+	private FarmTable farmTable;
 
 	/**
 	 * Method that runs show primary Stage
@@ -44,6 +52,7 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		// TODO Auto-generated method stub
+		farmTable = new FarmTable();
 		args = this.getParameters().getRaw();
 		BorderPane root = new BorderPane();
 
@@ -66,8 +75,8 @@ public class Main extends Application {
 		rightButtons.getChildren().addAll(weightDifference, uploadData);
 		rightButtons.setSpacing(15);
 		root.setRight(rightButtons);
-		
-		//Set bottom of the main screen
+
+		// Set bottom of the main screen
 		Button viewData = new Button("", new Label("View Results"));
 		viewData.setOnAction(e -> viewDataWindow(primaryStage));
 		root.setBottom(viewData);
@@ -81,9 +90,10 @@ public class Main extends Application {
 		primaryStage.setScene(mainScene);
 		primaryStage.show();
 	}
-	
+
 	/**
 	 * Method to create a new window for viewing data
+	 * 
 	 * @param primaryStage parent stage to set modality
 	 */
 	private void viewDataWindow(Stage primaryStage) {
@@ -92,8 +102,8 @@ public class Main extends Application {
 		vD.initModality(Modality.APPLICATION_MODAL);
 		vD.initOwner(primaryStage);
 		BorderPane root = new BorderPane();
-	
-		//Set the titles of headings of the window
+
+		// Set the titles of headings of the window
 		Label title1 = new Label("By Farm:");
 		Label title2 = new Label("By Month-Year:");
 		Label title3 = new Label("All Farm Data: ");
@@ -104,8 +114,8 @@ public class Main extends Application {
 		titleBox.getChildren().addAll(title1, title3, title2);
 		titleBox.setAlignment(Pos.TOP_CENTER);
 		titleBox.setSpacing(350);
-		
-		//Set the search by farm results section
+
+		// Set the search by farm results section
 		VBox byFarm = new VBox();
 		HBox userInput1 = new HBox();
 		TextField farmId = new TextField();
@@ -117,10 +127,10 @@ public class Main extends Application {
 		Button go1 = new Button("Go");
 		userInput1.getChildren().addAll(farmId, year1, go1);
 		ListView results1 = new ListView();
-		go1.setOnAction(e-> onFarmFilter(farmId.getText(), year1.getText(), results1));
+		go1.setOnAction(e -> onFarmFilter(farmId.getText(), year1.getText(), results1));
 		byFarm.getChildren().addAll(userInput1, results1);
-		
-		//Set the search by date results section
+
+		// Set the search by date results section
 		VBox byMonth = new VBox();
 		HBox userInput2 = new HBox();
 		TextField month = new TextField();
@@ -132,10 +142,10 @@ public class Main extends Application {
 		Button go2 = new Button("Go");
 		userInput2.getChildren().addAll(month, year2, go2);
 		ListView results2 = new ListView();
-		go2.setOnAction(e-> onMonthFilter(month.getText(), year2.getText(), results2));
+		go2.setOnAction(e -> onMonthFilter(month.getText(), year2.getText(), results2));
 		byMonth.getChildren().addAll(userInput2, results2);
-		
-		//Set the filter of all farms section
+
+		// Set the filter of all farms section
 		VBox allFarms = new VBox();
 		HBox userInput3 = new HBox();
 		TextField month2 = new TextField();
@@ -148,74 +158,87 @@ public class Main extends Application {
 		userInput3.getChildren().addAll(month2, year3, filter);
 		allFarms.getChildren().addAll(userInput3, getFarms());
 
-		//Fix alignment and set each search to their section
+		// Fix alignment and set each search to their section
 		BorderPane.setAlignment(titleBox, Pos.CENTER);
 		root.setTop(titleBox);
 		root.setLeft(byFarm);
 		root.setCenter(allFarms);
 		root.setRight(byMonth);
 
-		//Finalize properties of window and scene
+		// Finalize properties of window and scene
 		Scene sc = new Scene(root);
 		vD.setScene(sc);
 		vD.setHeight(500);
 		vD.setWidth(1200);
 		vD.show();
 	}
+
 	/**
 	 * Helper method to get all the farms in the list view GUI object
+	 * 
 	 * @return listView that has all farms and shares
 	 */
 	private ListView getFarms() {
 		ListView lv = new ListView();
-		for(int i=0; i < 20; i++) {
-			int percent = (int) (Math.random()*100);
-			Label farm = new Label("Farm " + i + "=> Share: " + percent + "%");
-			lv.getItems().add(farm);
+		Farm[] table = farmTable.getTable();
+		for (int i = 0; i < table.length; i++) {
+			Farm f = table[i];
+			if (f != null) {
+				int percent = (int) (Math.random() * 100);
+				Label farm = new Label(f.getID() + " => " + "Weight: " + f.getWeight() + " ,Share: " + percent + "%"
+						+ ", Last Modfified: " + f.getDate());
+				lv.getItems().add(farm);
+			}
 		}
 		return lv;
 	}
+
 	/**
 	 * Helper method to get all the farms and data associated with period of time
-	 * @param month month you are looking for
-	 * @param year year you are looking for
+	 * 
+	 * @param month   month you are looking for
+	 * @param year    year you are looking for
 	 * @param results listView object to update with the results
 	 */
 	private void onMonthFilter(String month, String year, ListView results) {
 		results.getItems().clear();
-		for(int i=0; i < 20; i++) {
+		for (int i = 0; i < 20; i++) {
 			HBox hb = new HBox();
-			int min = (int) (Math.random()*5000);
-			int max = (int) (Math.random()*10000);
-			double avg = (min+max)/2.0;
+			int min = (int) (Math.random() * 5000);
+			int max = (int) (Math.random() * 10000);
+			double avg = (min + max) / 2.0;
 			Label farm = new Label("Farm " + i + ": ");
 			Label analysis = new Label("Min: " + min + ", Max: " + max + ", Avg: " + avg);
 			hb.getChildren().addAll(farm, analysis);
 			results.getItems().add(hb);
 		}
 	}
+
 	/**
 	 * Helper method to get all data of a farm by month within a specific year
-	 * @param id Farm that you are looking for
-	 * @param year what year you want to observe monthly results in
+	 * 
+	 * @param id      Farm that you are looking for
+	 * @param year    what year you want to observe monthly results in
 	 * @param results results listView object to update with the results
 	 */
 	private void onFarmFilter(String id, String year, ListView results) {
 		results.getItems().clear();
-		for(int i = 1; i < 13; i++) {
+		for (int i = 1; i < 13; i++) {
 			HBox hb = new HBox();
-			int min = (int) (Math.random()*5000);
-			int max = (int) (Math.random()*10000);
-			double avg = (min+max)/2.0;
+			int min = (int) (Math.random() * 5000);
+			int max = (int) (Math.random() * 10000);
+			double avg = (min + max) / 2.0;
 
 			Label analysis = new Label("Min: " + min + ", Max: " + max + ", Avg: " + avg);
 			hb.getChildren().addAll(new Label("Month " + i + ": "), analysis);
 			results.getItems().add(hb);
 		}
 	}
+
 	/**
 	 * Method to create a new window for seeing weight difference(most recent
 	 * increase or decrease)
+	 * 
 	 * @param primaryStage parent stage to set modality
 	 */
 	private void weightDifferenceWindow(Stage primaryStage) {
@@ -238,12 +261,13 @@ public class Main extends Application {
 		bt.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
-					String ID = idPrompt.getText();
-					// GET MOST RECENT WEIGHT DIFFERNECE AND GOT TO
-					// NEW WINDOW DISPLAYING DIFFERENCE
-					Alert success = new Alert(AlertType.CONFIRMATION, "Most recent growth/decay is: " + (int) (Math.random()*5000), ButtonType.OK);
-					success .show();
-					wD.close();
+				String ID = idPrompt.getText();
+				// GET MOST RECENT WEIGHT DIFFERNECE AND GOT TO
+				// NEW WINDOW DISPLAYING DIFFERENCE
+				Alert success = new Alert(AlertType.CONFIRMATION,
+						"Most recent growth/decay is: " + (int) (Math.random() * 5000), ButtonType.OK);
+				success.show();
+				wD.close();
 			}
 		});
 		root.setTop(hb);
@@ -255,8 +279,10 @@ public class Main extends Application {
 		wD.setScene(main);
 		wD.show();
 	}
+
 	/**
 	 * Method to create a new window for updating existing data
+	 * 
 	 * @param primaryStage parent stage to set modality
 	 */
 	private void updateDataWindow(Stage primaryStage) {
@@ -272,7 +298,7 @@ public class Main extends Application {
 		TextField farmID = new TextField();
 		farmID.setPromptText("Farm ID");
 		hb0.getChildren().addAll(new Label("Enter Farm ID: "), farmID);
-		
+
 		HBox hb1 = new HBox(); // HBox for Previous Date line
 		TextField oldDate = new TextField();
 		oldDate.setPromptText("yyyy-mm-dd");
@@ -307,8 +333,9 @@ public class Main extends Application {
 						throw new IllegalArgumentException();
 					}
 					// UPDATE FARM IN DATA STRUCTURE HERE
-					Alert success = new Alert(AlertType.CONFIRMATION, "Data has been successfully updated", ButtonType.OK);
-					success .show();
+					Alert success = new Alert(AlertType.CONFIRMATION, "Data has been successfully updated",
+							ButtonType.OK);
+					success.show();
 
 				} catch (IllegalArgumentException i) {
 					Alert error = new Alert(AlertType.ERROR, "Did not valid date format.", ButtonType.CLOSE);
@@ -330,9 +357,11 @@ public class Main extends Application {
 		uD.setWidth(350);
 		uD.show();
 	}
+
 	/**
-	 * Method to create a new window for adding or removing data
-	 * increase or decrease)
+	 * Method to create a new window for adding or removing data increase or
+	 * decrease)
+	 * 
 	 * @param primaryStage parent stage to set modality
 	 */
 	public void addRemoveDataWindow(Stage primaryStage) {
@@ -357,9 +386,9 @@ public class Main extends Application {
 		TextField weight = new TextField();
 		weight.setPromptText("Enter Weight");
 		hb3.getChildren().addAll(new Label("Enter Milk Weight: "), weight);
-		
+
 		HBox hb4 = new HBox();
-		Button add = new Button("Add"); 
+		Button add = new Button("Add");
 		Button remove = new Button("Remove");
 		hb4.getChildren().addAll(add, remove);
 		hb4.setSpacing(5);
@@ -372,20 +401,21 @@ public class Main extends Application {
 					String[] dateArray = date.getText().split("-");
 					if (dateArray.length != 3) {
 						throw new IllegalArgumentException();
-					}
-					else {
-						if(dateArray[0].length() != 4 && dateArray[1].length() != 2 && dateArray[2].length() != 2) {
+					} else {
+						if (dateArray[0].length() != 4 && dateArray[1].length() != 2 && dateArray[2].length() != 2) {
 							throw new IllegalArgumentException();
 						}
-						if(Integer.parseInt(dateArray[1]) > 12 || Integer.parseInt(dateArray[2]) > 31) {
+						if (Integer.parseInt(dateArray[1]) > 12 || Integer.parseInt(dateArray[2]) > 31) {
 							throw new IllegalArgumentException();
 						}
 					}
 					// ADD REMOVE DATA IN HASHTABLE
-					Alert success = new Alert(AlertType.CONFIRMATION, "Data has been successfully removed", ButtonType.OK);
-					success .show();
-				}  catch (IllegalArgumentException i) {
-					Alert error = new Alert(AlertType.ERROR, "Please follow format shown in text field.", ButtonType.CLOSE);
+					Alert success = new Alert(AlertType.CONFIRMATION, "Data has been successfully removed",
+							ButtonType.OK);
+					success.show();
+				} catch (IllegalArgumentException i) {
+					Alert error = new Alert(AlertType.ERROR, "Please follow format shown in text field.",
+							ButtonType.CLOSE);
 					error.show();
 				} finally {
 					nD.close();
@@ -401,17 +431,18 @@ public class Main extends Application {
 					String[] dateArray = date.getText().split("-");
 					if (dateArray.length != 3) {
 						throw new IllegalArgumentException();
-					}
-					else {
-						if(dateArray[0].length() != 4 && dateArray[1].length() != 2 && dateArray[2].length() != 2) {
+					} else {
+						if (dateArray[0].length() != 4 && dateArray[1].length() != 2 && dateArray[2].length() != 2) {
 							throw new IllegalArgumentException();
 						}
 					}
 					// ADD NEW DATA IN HASHTABLE
-					Alert success = new Alert(AlertType.CONFIRMATION, "Data has been successfully added", ButtonType.OK);
-					success .show();
-				}  catch (IllegalArgumentException i) {
-					Alert error = new Alert(AlertType.ERROR, "Please follow format shown in text field.", ButtonType.CLOSE);
+					Alert success = new Alert(AlertType.CONFIRMATION, "Data has been successfully added",
+							ButtonType.OK);
+					success.show();
+				} catch (IllegalArgumentException i) {
+					Alert error = new Alert(AlertType.ERROR, "Please follow format shown in text field.",
+							ButtonType.CLOSE);
 					error.show();
 				} finally {
 					nD.close();
@@ -431,9 +462,11 @@ public class Main extends Application {
 		nD.setHeight(350);
 		nD.show();
 	}
+
 	/**
-	 * Method to create a new window for initializing data with file(CSV)
-	 * increase or decrease)
+	 * Method to create a new window for initializing data with file(CSV) increase
+	 * or decrease)
+	 * 
 	 * @param primaryStage parent stage to set modality
 	 */
 	public void uploadFileWindow(Stage primaryStage) {
@@ -441,25 +474,30 @@ public class Main extends Application {
 		uF.setTitle("Upload Data");
 		uF.initModality(Modality.APPLICATION_MODAL);
 		uF.initOwner(primaryStage);
-		
+
 		BorderPane root = new BorderPane();
-		
+
 		HBox upload = new HBox(); // HBox for file input
 		TextField fileInput = new TextField();
 		fileInput.setPromptText("File path");
 		fileInput.setFocusTraversable(false);
 		upload.getChildren().addAll(new Label("Enter Path of File: "), fileInput);
 		Button bt = new Button("DONE"); // Done Button
-		
+
 		bt.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
 				try {
-					File f = new File(fileInput.getText());
-					// ADD NEW DATA IN HASHTABLE
-					Alert success = new Alert(AlertType.CONFIRMATION, "Data has been successfully uploaded", ButtonType.OK);
-					success .show();
+					List<String[]> data = fileRead(fileInput.getText());
+					data.remove(0);
+					for (String[] d : data) {
+						farmTable.insert(d[1], new Farm(d[1], Integer.parseInt(d[2]), d[0]));
+					}
+					Alert success = new Alert(AlertType.CONFIRMATION, "Data has been successfully uploaded",
+							ButtonType.OK);
+					success.show();
 				} catch (Exception e) {
+					e.printStackTrace();
 					Alert a = new Alert(AlertType.ERROR, "Did not input valid file path.", ButtonType.CLOSE);
 					a.show();
 				} finally {
@@ -467,19 +505,32 @@ public class Main extends Application {
 				}
 			}
 		});
-		
+
 		VBox vb = new VBox(); // VBox to put all 4 elements together
 		vb.getChildren().addAll(upload, bt);
 		vb.setSpacing(25);
 
 		root.setCenter(vb);
-		
+
 		Scene scene = new Scene(root);
 		uF.setScene(scene);
 		uF.setWidth(500);
 		uF.setHeight(175);
 		uF.show();
 	}
+
+	private static List<String[]> fileRead(String f) {
+		try (Stream<String> stream = Files.lines(Paths.get(f))) {
+			List<String[]> data = stream.filter(u -> u.split(",").length == 3).map(m -> m.split(","))
+					.collect(Collectors.toList());
+			return data;
+		} catch (Exception e) {
+
+		} finally {
+		}
+		return null;
+	}
+
 	/**
 	 * Method that will run upon program execution
 	 * 
@@ -487,8 +538,6 @@ public class Main extends Application {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-        String classpathStr = System.getProperty("java.class.path");
-        System.out.println(classpathStr);
 		launch(args);
 	}
 

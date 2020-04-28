@@ -51,7 +51,6 @@ public class Main extends Application {
 	 */
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		// TODO Auto-generated method stub
 		farmTable = new FarmTable();
 		args = this.getParameters().getRaw();
 		BorderPane root = new BorderPane();
@@ -551,7 +550,6 @@ public class Main extends Application {
 	 * @param args System arguments to pass down before running
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		launch(args);
 	}
 

@@ -58,11 +58,7 @@ public class FarmTable implements HashTableADT<String, Farm> {
   private int size;
 
   public FarmTable() {
-    loadFactorThreshold = 0.75;
-    size = 0;
-    bucketArray = new ArrayList<>();
-    size = 0;
-
+	  this(10, .75);
   }
 
   /**
@@ -86,7 +82,17 @@ public class FarmTable implements HashTableADT<String, Farm> {
   }
 
   public Farm[] getTable() {
-    return (Farm[]) bucketArray.toArray();
+    Farm[] t = new Farm[size];
+    int index  = 0;
+    for(int i = 0; i < bucketArray.size(); i++) {
+    	HashNode bucket = bucketArray.get(i);
+    	while(bucket != null) {
+    		t[index] = (Farm) bucket.value;
+    		bucket = bucket.next;
+    		index++;
+    	}
+    }
+    return t;
   }
 
   /**
@@ -104,11 +110,12 @@ public class FarmTable implements HashTableADT<String, Farm> {
   public void insert(String key, Farm value) {
     if (key != null) {
       // Gets the index, through the hash code for the key.
-      int bucketIndex = Math.abs(key.hashCode() % numBuckets);
+      int bucketIndex = Math.abs(key.hashCode() % bucketArray.size());
       HashNode<String, Farm> head = bucketArray.get(bucketIndex);// Head of the chain.
       while (head != null) {
         if (head.key.equals(key)) {// Update the value, since key already exists.
-          head.value = value;
+          head.value.updateFarm(value.getDate(), value.getWeight());
+          //head.value = value;
           return;
         }
         head = head.next;// Updates the head pointer till it reaches null.
@@ -153,7 +160,7 @@ public class FarmTable implements HashTableADT<String, Farm> {
 
       // Gets the index, through the hash code for the key.
 
-      int bucketIndex = Math.abs(key.hashCode() % numBuckets);
+      int bucketIndex = Math.abs(key.hashCode() % bucketArray.size());
 
       HashNode<String, Farm> head = bucketArray.get(bucketIndex); // Get head of chain
 
@@ -187,7 +194,7 @@ public class FarmTable implements HashTableADT<String, Farm> {
   public Farm get(String key) {
     if (key != null) {
 
-      int bucketIndex = Math.abs(key.hashCode() % numBuckets);// Find head of chain for given key
+      int bucketIndex = Math.abs(key.hashCode() % bucketArray.size());// Find head of chain for given key
       HashNode<String, Farm> head = bucketArray.get(bucketIndex);
 
       while (head != null) {// Search key in chain
@@ -198,6 +205,16 @@ public class FarmTable implements HashTableADT<String, Farm> {
       }
     }
     return null;
+  }
+  
+  public int computeSum() {
+	  int sum = 0;
+	  for(HashNode i:bucketArray) {
+		  if(i != null) {
+			  sum+=((Farm) i.value).getWeight();
+		  }
+	  }
+	  return sum;
   }
 
   @Override

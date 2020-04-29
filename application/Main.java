@@ -1,6 +1,8 @@
 package application;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,7 +27,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -81,6 +85,12 @@ public class Main extends Application {
 		root.setBottom(viewData);
 		BorderPane.setAlignment(viewData, Pos.BASELINE_CENTER);
 
+		// Output Results button
+		Button outputResults = new Button("", new Label("Output Results "));
+		outputResults.setOnAction(e -> outputResults(primaryStage));
+		BorderPane.setAlignment(outputResults, Pos.CENTER);
+
+		root.setCenter(outputResults);
 		// Finalize and set stage to main scene
 		Scene mainScene = new Scene(root);
 		primaryStage.setWidth(400);
@@ -88,6 +98,242 @@ public class Main extends Application {
 		primaryStage.setTitle(APP_TITLE);
 		primaryStage.setScene(mainScene);
 		primaryStage.show();
+	}
+
+	private void outputResults(Stage primaryStage) {
+		Stage oR = new Stage();
+		oR.setTitle("Output Results");
+		oR.initModality(Modality.APPLICATION_MODAL);
+		oR.initOwner(primaryStage);
+		BorderPane root = new BorderPane();
+
+		ToggleGroup group = new ToggleGroup();
+
+		RadioButton rb1 = new RadioButton("Farm Report");
+		rb1.setToggleGroup(group);
+
+		RadioButton rb2 = new RadioButton("Annual Report");
+		rb2.setToggleGroup(group);
+
+		RadioButton rb3 = new RadioButton("Monthly Report");
+		rb3.setToggleGroup(group);
+
+		RadioButton rb4 = new RadioButton("Date Range Report");
+		rb4.setToggleGroup(group);
+
+		HBox options = new HBox();
+		options.getChildren().addAll(rb1, rb2, rb3, rb4);
+
+		HBox hb0 = new HBox(); // HBox for farm ID line
+		TextField farmID = new TextField();
+		farmID.setPromptText("Farm ID");
+		hb0.getChildren().addAll(new Label("Enter Farm ID: "), farmID);
+		hb0.setVisible(false);
+
+		HBox hb1 = new HBox(); // HBox for Previous Date line
+		TextField year = new TextField();
+		year.setPromptText("yyyy");
+		hb1.getChildren().addAll(new Label("Year: "), year);
+		hb1.setVisible(false);
+
+		HBox hb2 = new HBox(); // HBox for New Date line
+		TextField month = new TextField();
+		month.setPromptText("mm");
+		hb2.getChildren().addAll(new Label("Month:  "), month);
+		hb2.setVisible(false);
+
+		HBox hb3 = new HBox(); // HBox for Old Weight
+		TextField startDate = new TextField();
+		startDate.setPromptText("yyyy-mm-dd");
+		hb3.getChildren().addAll(new Label("Start Date: "), startDate);
+		hb3.setVisible(false);
+
+		HBox hb4 = new HBox();
+		TextField endDate = new TextField();
+		endDate.setPromptText("yyyy-mm-dd");
+		hb4.getChildren().addAll(new Label("End Date: "), endDate);
+		hb4.setVisible(false);
+
+		HBox hb5 = new HBox();
+		TextField filePath = new TextField(); // HBox for new Weight
+		filePath.setPromptText("file path");
+		hb5.getChildren().addAll(new Label("File Path: "), filePath);
+
+		rb1.setOnAction(e -> {
+			hb0.setVisible(true);
+			hb1.setVisible(true);
+			hb2.setVisible(false);
+			hb3.setVisible(false);
+			hb4.setVisible(false);
+		});
+		rb2.setOnAction(e -> {
+			hb0.setVisible(false);
+			hb1.setVisible(true);
+			hb2.setVisible(false);
+			hb3.setVisible(false);
+			hb4.setVisible(false);
+		});
+		rb3.setOnAction(e -> {
+			hb0.setVisible(false);
+			hb1.setVisible(true);
+			hb2.setVisible(true);
+			hb3.setVisible(false);
+			hb4.setVisible(false);
+		});
+		rb4.setOnAction(e -> {
+			hb0.setVisible(false);
+			hb1.setVisible(false);
+			hb2.setVisible(false);
+			hb3.setVisible(true);
+			hb4.setVisible(true);
+		});
+
+		Button bt = new Button("DONE"); // Done Button
+		bt.setVisible(false);
+		rb1.setOnAction(e -> {
+			hb0.setVisible(true);
+			hb1.setVisible(true);
+			hb2.setVisible(false);
+			hb3.setVisible(false);
+			hb4.setVisible(false);
+			bt.setVisible(true);
+		});
+		rb2.setOnAction(e -> {
+			hb0.setVisible(false);
+			hb1.setVisible(true);
+			hb2.setVisible(false);
+			hb3.setVisible(false);
+			hb4.setVisible(false);
+			bt.setVisible(true);
+		});
+		rb3.setOnAction(e -> {
+			hb0.setVisible(false);
+			hb1.setVisible(true);
+			hb2.setVisible(true);
+			hb3.setVisible(false);
+			hb4.setVisible(false);
+			bt.setVisible(true);
+		});
+		rb4.setOnAction(e -> {
+			hb0.setVisible(false);
+			hb1.setVisible(false);
+			hb2.setVisible(false);
+			hb3.setVisible(true);
+			hb4.setVisible(true);
+			bt.setVisible(true);
+		});
+		bt.setOnAction(e -> {
+			File f = new File(filePath.getText());
+			if (rb1.isSelected()) {
+				try {
+					farmReport(farmID.getText(), year.getText(), f);
+					System.out.println("Done");
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			} else if (rb2.isSelected()) {
+				try {
+					annualReport(year.getText(), f);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			} else if (rb3.isSelected()) {
+				try {
+					monthlyReport(year.getText(), month.getText(), f);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			} else if (rb4.isSelected()) {
+				try {
+					dateRangeReport(startDate.getText(), endDate.getText(), f);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+
+		VBox vb = new VBox();
+		vb.getChildren().addAll(options, hb0, hb1, hb2, hb3, hb4, hb5, bt);
+
+		vb.setSpacing(25);
+
+		root.setCenter(vb);
+
+		Scene sc = new Scene(root);
+		oR.setScene(sc);
+		oR.setHeight(500);
+		oR.setWidth(450);
+		oR.show();
+
+	}
+
+	private void dateRangeReport(String start, String end, File file) throws IOException {
+		// TODO Auto-generated method stub
+		Farm[] table = farmTable.getTable();
+		FileWriter myWriter = new FileWriter(file);
+		BufferedWriter writer = new BufferedWriter(myWriter);
+		for (int i = 0; i < table.length; i++) {
+			Farm f = table[i];
+			if (f != null) {
+				double percent = (100.0 * f.getWeightRange(start, end)) / farmTable.computeSum();
+				writer.write(f.getID() + " " + i + ": " + "Weight = " + f.getWeight(start, end) + " Share = "
+						+ percent);
+				writer.newLine();
+			}
+		}
+		writer.close();
+	}
+
+	private void monthlyReport(String year, String month, File file) throws IOException {
+		Farm[] table = farmTable.getTable();
+		FileWriter myWriter = new FileWriter(file);
+		BufferedWriter writer = new BufferedWriter(myWriter);
+		for (int i = 0; i < table.length; i++) {
+			Farm f = table[i];
+			if (f != null) {
+				double percent = (100.0 * f.getWeight(month, year)) / farmTable.computeSum();
+				writer.write(f.getID() + " " + i + ": " + "Weight = " + f.getWeight(month, year) + " Share = "
+						+ percent);
+				writer.newLine();
+			}
+		}
+		writer.close();
+	}
+
+	private void annualReport(String year, File file) throws IOException {
+		Farm[] table = farmTable.getTable();
+		FileWriter myWriter = new FileWriter(file);
+		BufferedWriter writer = new BufferedWriter(myWriter);
+		for (int i = 0; i < table.length; i++) {
+			Farm f = table[i];
+			if (f != null) {
+				double percent = (100.0 * f.getWeight(year)) / farmTable.computeSum();
+				writer.write(f.getID() + " " + i + ": " + "Weight = " + f.getWeight(year) + " Share = "
+						+ percent);
+				writer.newLine();
+			}
+		}
+		writer.close();
+	}
+
+	private void farmReport(String id, String year, File file) throws IOException {
+		// TODO Auto-generated method stub
+		FileWriter myWriter = new FileWriter(file);
+		BufferedWriter writer = new BufferedWriter(myWriter);
+		for (int i = 1; i < 13; i++) {
+			Farm f = farmTable.get(id);
+			if (f != null) {
+				double percent = (100.0 * f.getWeight(Integer.toString(i), year)) / farmTable.computeSum();
+				writer.write("Month " + i + ": " + "Weight = " + f.getWeight(Integer.toString(i), year) + " Share = "
+						+ percent);
+				writer.newLine();
+			}
+		}
+		writer.close();
 	}
 
 	/**
@@ -154,8 +400,10 @@ public class Main extends Application {
 		year3.setPromptText("Year: yyyy");
 		year3.setFocusTraversable(false);
 		Button filter = new Button("Filter");
+		ListView allFarmsList = getFarms();
+		filter.setOnAction(e -> getFarms(month2.getText(), year3.getText(), allFarmsList));
 		userInput3.getChildren().addAll(month2, year3, filter);
-		allFarms.getChildren().addAll(userInput3, getFarms());
+		allFarms.getChildren().addAll(userInput3, allFarmsList);
 
 		// Fix alignment and set each search to their section
 		BorderPane.setAlignment(titleBox, Pos.CENTER);
@@ -183,13 +431,35 @@ public class Main extends Application {
 		for (int i = 0; i < table.length; i++) {
 			Farm f = table[i];
 			if (f != null) {
-				int percent = (int) (Math.random() * 100);
+				System.out.println(f.getUpdates().toString());
+				double percent = (100.0 * f.getWeight()) / farmTable.computeSum();
 				Label farm = new Label(f.getID() + " => " + "Weight: " + f.getWeight() + " ,Share: " + percent + "%"
 						+ ", Last Modfified: " + f.getDate());
 				lv.getItems().add(farm);
 			}
 		}
 		return lv;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private void getFarms(String month, String year, ListView lv) {
+		lv.getItems().clear();
+		Farm[] table = farmTable.getTable();
+		for (int i = 0; i < table.length; i++) {
+			Farm f = table[i];
+			if (f != null) {
+				if (f.getWeight(month, year) == 0) {
+					lv.getItems().add(new Label("Farm was not updated in this period of time"));
+				}
+				double percent = (100.0 * f.getWeight(month, year)) / farmTable.computeSum();
+				Label farm = new Label(f.getID() + " => " + "Weight: " + f.getWeight(month, year) + " ,Share: "
+						+ percent + "%" + ", Last Modfified: " + f.getDate());
+				lv.getItems().add(farm);
+			}
+		}
 	}
 
 	/**
@@ -202,16 +472,24 @@ public class Main extends Application {
 	private void onMonthFilter(String month, String year, ListView results) {
 		results.getItems().clear();
 		Farm[] table = farmTable.getTable();
+		if (month.length() == 0) {
+			results.getItems().add(new Label("Please input a month to filter by."));
+			return;
+		}
+		if (year.length() == 0) {
+			results.getItems().add(new Label("Please input a year to filter by."));
+			return;
+		}
 		for (int i = 0; i < table.length; i++) {
 			Farm f = table[i];
-			if(f != null) {
+			if (f != null) {
 				HBox hb = new HBox();
 				double[] a = f.getMinMaxAvg(month, year);
 				System.out.println(Arrays.toString(a));
 				int min = (int) a[0];
 				int max = (int) a[1];
 				double avg = a[2];
-				if(min != Integer.MAX_VALUE && max != Integer.MIN_VALUE && avg != Double.NaN) {
+				if (min != Integer.MAX_VALUE && max != Integer.MIN_VALUE && avg != Double.NaN) {
 					Label farm = new Label(f.getID() + ": ");
 					Label analysis = new Label("Min: " + min + ", Max: " + max + ", Avg: " + avg);
 					hb.getChildren().addAll(farm, analysis);
@@ -231,13 +509,21 @@ public class Main extends Application {
 	private void onFarmFilter(String id, String year, ListView results) {
 		results.getItems().clear();
 		Farm f = farmTable.get(id);
+		if (year.length() == 0) {
+			results.getItems().add(new Label("Please input a year to filter by."));
+			return;
+		}
+		if (f == null) {
+			results.getItems().add(new Label("The farm id does not exist in the data."));
+			return;
+		}
 		for (int i = 1; i < 13; i++) {
 			double[] a = f.getMinMaxAvg(Integer.toString(i), year);
 			HBox hb = new HBox();
 			int min = (int) a[0];
 			int max = (int) a[1];
 			double avg = a[2];
-			if(min != Integer.MAX_VALUE && max != Integer.MIN_VALUE && avg != Double.NaN) {
+			if (min != Integer.MAX_VALUE && max != Integer.MIN_VALUE && avg != Double.NaN) {
 				Label analysis = new Label("Min: " + min + ", Max: " + max + ", Avg: " + avg);
 				hb.getChildren().addAll(new Label("Month " + i + ": "), analysis);
 				results.getItems().add(hb);
@@ -275,8 +561,8 @@ public class Main extends Application {
 				// GET MOST RECENT WEIGHT DIFFERNECE AND GO TO
 				Farm f = farmTable.get(ID);
 				// NEW WINDOW DISPLAYING DIFFERENCE
-				Alert success = new Alert(AlertType.CONFIRMATION,
-						"Most recent growth/decay is: " + f.getDifference(), ButtonType.OK);
+				Alert success = new Alert(AlertType.CONFIRMATION, "Most recent growth/decay is: " + f.getDifference(),
+						ButtonType.OK);
 				success.show();
 				wD.close();
 			}
@@ -410,7 +696,6 @@ public class Main extends Application {
 			public void handle(ActionEvent arg0) {
 				try {
 					String ID = farmID.getText();
-					int weightVal = Integer.parseInt(weight.getText());
 					String[] dateArray = date.getText().split("-");
 					if (dateArray.length != 3) {
 						throw new IllegalArgumentException();
@@ -422,12 +707,20 @@ public class Main extends Application {
 							throw new IllegalArgumentException();
 						}
 					}
-					// ADD REMOVE DATA IN HASHTABLE
+					if (farmTable.get(ID) == null) {
+						throw new NullPointerException();
+					}
+					farmTable.get(ID).remove(date.getText());
 					Alert success = new Alert(AlertType.CONFIRMATION, "Data has been successfully removed",
 							ButtonType.OK);
 					success.show();
 				} catch (IllegalArgumentException i) {
+					i.printStackTrace();
 					Alert error = new Alert(AlertType.ERROR, "Please follow format shown in text field.",
+							ButtonType.CLOSE);
+					error.show();
+				} catch (NullPointerException n) {
+					Alert error = new Alert(AlertType.ERROR, "The given ID does not exist in the data.",
 							ButtonType.CLOSE);
 					error.show();
 				} finally {
@@ -449,7 +742,10 @@ public class Main extends Application {
 							throw new IllegalArgumentException();
 						}
 					}
-					// ADD NEW DATA IN HASHTABLE
+					if (farmTable.get(ID) == null) {
+						throw new NullPointerException();
+					}
+					farmTable.get(ID).updateFarm(date.getText(), weightVal);
 					Alert success = new Alert(AlertType.CONFIRMATION, "Data has been successfully added",
 							ButtonType.OK);
 					success.show();
@@ -457,7 +753,12 @@ public class Main extends Application {
 					Alert error = new Alert(AlertType.ERROR, "Please follow format shown in text field.",
 							ButtonType.CLOSE);
 					error.show();
+				} catch (NullPointerException n) {
+					Alert error = new Alert(AlertType.ERROR, "The given ID does not exist in the data.",
+							ButtonType.CLOSE);
+					error.show();
 				} finally {
+
 					nD.close();
 				}
 			}

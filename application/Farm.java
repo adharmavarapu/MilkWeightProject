@@ -133,22 +133,118 @@ public class Farm {
 		return new double[] { min, max, (1.0 * sum / count) };
 	}
 
+
+	public int getWeight(String month, String year) {
+		for (int i = updateList.size()-1; i >= 0; i--) {
+			FarmUpdate u = updateList.get(i);
+			String[] currDate = u.currDate.split("-");
+			if (Integer.parseInt(currDate[0]) == Integer.parseInt(year)
+					&& Integer.parseInt(currDate[1]) == Integer.parseInt(month)) {
+				return u.currWeight;
+			}
+		}
+		return 0;
+	}
+	public int getWeight(String year) {
+		for (int i = updateList.size()-1; i >= 0; i--) {
+			FarmUpdate u = updateList.get(i);
+			String[] currDate = u.currDate.split("-");
+			if (Integer.parseInt(currDate[0]) == Integer.parseInt(year)) {
+				return u.currWeight;
+			}
+		}
+		return 0;
+	}
+	public int getWeightRange(String start, String end) {
+		int weightOverRange = 0;
+		String[] startDate = start.split("-");
+		String[] endDate = start.split("-"); 
+		boolean add = false;
+		for (int i = 0; i < updateList.size(); i++) {
+			FarmUpdate u = updateList.get(i);
+			String[] currDate = u.currDate.split("-");
+			String[] prevDate = u.prevDate.split("-");
+			if(add) {
+				weightOverRange+=u.currWeight;
+			}
+			if (Integer.parseInt(prevDate[0]) == Integer.parseInt(startDate[0])
+					&& Integer.parseInt(prevDate[1]) == Integer.parseInt(startDate[1])
+					&& Integer.parseInt(prevDate[2]) == Integer.parseInt(startDate[2])) {
+				weightOverRange+=u.currWeight;
+				add = true;
+			}
+			if (!prevDate[0].equals("Start") && Integer.parseInt(prevDate[0]) == Integer.parseInt(endDate[0])
+					&& Integer.parseInt(prevDate[1]) == Integer.parseInt(endDate[1])
+					&& Integer.parseInt(prevDate[2]) == Integer.parseInt(endDate[2])) {
+				break;
+			}
+		}
+		return weightOverRange;
+
+	}
+	public void remove(String date) {
+		String year = date.split("-")[0];
+		String month = date.split("-")[1];
+		String day = date.split("-")[2];
+		
+		for (int i = 0; i < updateList.size(); i++) {
+			FarmUpdate u = updateList.get(i);
+			String[] currDate = u.currDate.split("-");
+			String[] prevDate = u.prevDate.split("-");
+			if (Integer.parseInt(currDate[0]) == Integer.parseInt(year)
+					&& Integer.parseInt(currDate[1]) == Integer.parseInt(month)
+					&& Integer.parseInt(currDate[2]) == Integer.parseInt(day)) {
+				updateList.remove(u);
+			}
+			if (!prevDate[0].equals("Start") && Integer.parseInt(prevDate[0]) == Integer.parseInt(year)
+					&& Integer.parseInt(prevDate[1]) == Integer.parseInt(month)
+					&& Integer.parseInt(prevDate[2]) == Integer.parseInt(day)) {
+				if(i == 0) {
+					u.prevDate = "START";
+					u.prevWeight = 0;
+				}
+				else {
+					u.prevDate = updateList.get(i-1).currDate;
+					u.prevWeight = updateList.get(i-1).currWeight;
+				}
+			}
+		}
+	}
 	/**
-	 * W
+	 * 
 	 * @param oldDate
 	 * @param newDate
 	 * @param oldWeight
 	 * @param newWeight
 	 */
 	public void update(String oldDate, String newDate, int oldWeight, int newWeight) {
+		
 		for (FarmUpdate u : updateList) {
-			if(oldDate.equals(u.prevDate) && newDate.equals(u.currDate)) {
+			String[] prevDate = u.prevDate.split("-");
+			String[] currDate = u.currDate.split("-");
+			
+			String prevYear = prevDate[0];
+			String prevMonth = prevDate[1];
+			String prevDay = prevDate[2];
+			
+			String currYear = currDate[0];
+			String currMonth = currDate[1];
+			String currDay = currDate[2];
+			
+			if (Integer.parseInt(prevDate[0]) == Integer.parseInt(prevYear)
+					&& Integer.parseInt(prevDate[1]) == Integer.parseInt(prevMonth)
+					&& Integer.parseInt(prevDate[2]) == Integer.parseInt(prevDay)) {
+				if(Integer.parseInt(currDate[0]) == Integer.parseInt(currYear)
+					&& Integer.parseInt(currDate[1]) == Integer.parseInt(currMonth)
+					&& Integer.parseInt(currDate[2]) == Integer.parseInt(currDay)) {
+					
+				}
 				u.prevWeight = oldWeight;
 				u.currWeight = newWeight;
 			}
 		}
 	}
-	
+
 	/**
 	 * get id of the farm
 	 * 
@@ -175,6 +271,7 @@ public class Farm {
 	public int getDifference() {
 		return updateList.get(updateList.size() - 1).getWeightDifference();
 	}
+
 	/**
 	 * Get the current milk weight of the farm
 	 * 

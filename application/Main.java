@@ -100,6 +100,11 @@ public class Main extends Application {
 		primaryStage.show();
 	}
 
+	/**
+	 * Window to output analysis to a file
+	 * 
+	 * @param primaryStage primaryStage parent stage to set modality
+	 */
 	private void outputResults(Stage primaryStage) {
 		Stage oR = new Stage();
 		oR.setTitle("Output Results");
@@ -107,260 +112,323 @@ public class Main extends Application {
 		oR.initOwner(primaryStage);
 		BorderPane root = new BorderPane();
 
+		// Setting up options horizontal box to select which type of output you prefer
 		ToggleGroup group = new ToggleGroup();
-
 		RadioButton rb1 = new RadioButton("Farm Report");
 		rb1.setToggleGroup(group);
-
 		RadioButton rb2 = new RadioButton("Annual Report");
 		rb2.setToggleGroup(group);
-
 		RadioButton rb3 = new RadioButton("Monthly Report");
 		rb3.setToggleGroup(group);
-
 		RadioButton rb4 = new RadioButton("Date Range Report");
 		rb4.setToggleGroup(group);
-
 		HBox options = new HBox();
+		options.setSpacing(10);
 		options.getChildren().addAll(rb1, rb2, rb3, rb4);
 
 		HBox hb0 = new HBox(); // HBox for farm ID line
 		TextField farmID = new TextField();
 		farmID.setPromptText("Farm ID");
 		hb0.getChildren().addAll(new Label("Enter Farm ID: "), farmID);
-		hb0.setVisible(false);
 
-		HBox hb1 = new HBox(); // HBox for Previous Date line
+		HBox hb1 = new HBox(); // HBox for year line
 		TextField year = new TextField();
 		year.setPromptText("yyyy");
 		hb1.getChildren().addAll(new Label("Year: "), year);
-		hb1.setVisible(false);
 
-		HBox hb2 = new HBox(); // HBox for New Date line
+		HBox hb2 = new HBox(); // HBox for month line
 		TextField month = new TextField();
 		month.setPromptText("mm");
 		hb2.getChildren().addAll(new Label("Month:  "), month);
 		hb2.setVisible(false);
 
-		HBox hb3 = new HBox(); // HBox for Old Weight
+		HBox hb3 = new HBox(); // HBox for start date
 		TextField startDate = new TextField();
 		startDate.setPromptText("yyyy-mm-dd");
 		hb3.getChildren().addAll(new Label("Start Date: "), startDate);
-		hb3.setVisible(false);
 
-		HBox hb4 = new HBox();
+		HBox hb4 = new HBox(); // HBox for start date
 		TextField endDate = new TextField();
 		endDate.setPromptText("yyyy-mm-dd");
 		hb4.getChildren().addAll(new Label("End Date: "), endDate);
-		hb4.setVisible(false);
 
 		HBox hb5 = new HBox();
-		TextField filePath = new TextField(); // HBox for new Weight
+		TextField filePath = new TextField(); // HBox for file path
 		filePath.setPromptText("file path");
 		hb5.getChildren().addAll(new Label("File Path: "), filePath);
 
-		rb1.setOnAction(e -> {
-			hb0.setVisible(true);
-			hb1.setVisible(true);
-			hb2.setVisible(false);
-			hb3.setVisible(false);
-			hb4.setVisible(false);
-		});
-		rb2.setOnAction(e -> {
-			hb0.setVisible(false);
-			hb1.setVisible(true);
-			hb2.setVisible(false);
-			hb3.setVisible(false);
-			hb4.setVisible(false);
-		});
-		rb3.setOnAction(e -> {
-			hb0.setVisible(false);
-			hb1.setVisible(true);
-			hb2.setVisible(true);
-			hb3.setVisible(false);
-			hb4.setVisible(false);
-		});
-		rb4.setOnAction(e -> {
-			hb0.setVisible(false);
-			hb1.setVisible(false);
-			hb2.setVisible(false);
-			hb3.setVisible(true);
-			hb4.setVisible(true);
-		});
+		// Box of input types for specific output
+		VBox inputBox = new VBox();
+		inputBox.setSpacing(25);
 
-		Button bt = new Button("DONE"); // Done Button
+		Button bt = new Button("Output"); // Output Button
 		bt.setVisible(false);
+
+		// Change the inputs available based on output option
 		rb1.setOnAction(e -> {
-			hb0.setVisible(true);
-			hb1.setVisible(true);
-			hb2.setVisible(false);
-			hb3.setVisible(false);
-			hb4.setVisible(false);
 			bt.setVisible(true);
+			inputBox.getChildren().clear();
+			inputBox.getChildren().addAll(hb0, hb1, hb5);
 		});
 		rb2.setOnAction(e -> {
-			hb0.setVisible(false);
-			hb1.setVisible(true);
-			hb2.setVisible(false);
-			hb3.setVisible(false);
-			hb4.setVisible(false);
 			bt.setVisible(true);
+			inputBox.getChildren().clear();
+			inputBox.getChildren().addAll(hb1, hb5);
 		});
 		rb3.setOnAction(e -> {
-			hb0.setVisible(false);
-			hb1.setVisible(true);
-			hb2.setVisible(true);
-			hb3.setVisible(false);
-			hb4.setVisible(false);
 			bt.setVisible(true);
+			inputBox.getChildren().clear();
+			inputBox.getChildren().addAll(hb1, hb2, hb5);
 		});
 		rb4.setOnAction(e -> {
-			hb0.setVisible(false);
-			hb1.setVisible(false);
-			hb2.setVisible(false);
-			hb3.setVisible(true);
-			hb4.setVisible(true);
 			bt.setVisible(true);
+			inputBox.getChildren().clear();
+			inputBox.getChildren().addAll(hb3, hb4, hb5);
 		});
+		
+		ListView results = new ListView();
+		results.getItems().add(new Label("Results: "));
+
+		// Vertical box containing options, input and upload button
+		VBox vb = new VBox();
+		vb.getChildren().addAll(options, inputBox, bt, results);
+		vb.setSpacing(25);
+		root.setCenter(vb);
+		
+		// Upload and compute outputs based off output selection
 		bt.setOnAction(e -> {
 			String f = filePath.getText();
+			// If farm report
 			if (rb1.isSelected()) {
-				
 				try {
-					farmReport(farmID.getText(), year.getText(), f);
-					System.out.println("Done");
+					farmReport(farmID.getText(), year.getText(), f, results);
+					Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
+							ButtonType.OK);
+					success.show();
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					Alert error = new Alert(AlertType.ERROR, f + " not found", ButtonType.CLOSE);
+					error.show();
+				} catch (NumberFormatException n) {
+					Alert error = new Alert(AlertType.ERROR, "year format is incorrect", ButtonType.CLOSE);
+					error.show();
 				}
+				// If annual report
 			} else if (rb2.isSelected()) {
 				try {
-					annualReport(year.getText(), f);
+					annualReport(year.getText(), f, results);
+					Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
+							ButtonType.OK);
+					success.show();
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					Alert error = new Alert(AlertType.ERROR, f + " not found", ButtonType.CLOSE);
+					error.show();
+				} catch (NumberFormatException n) {
+					Alert error = new Alert(AlertType.ERROR, "year format is incorrect", ButtonType.CLOSE);
+					error.show();
 				}
+				// If monthly report
 			} else if (rb3.isSelected()) {
 				try {
-					monthlyReport(year.getText(), month.getText(), f);
+					monthlyReport(year.getText(), month.getText(), f, results);
+					Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
+							ButtonType.OK);
+					success.show();
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					Alert error = new Alert(AlertType.ERROR, f + " not found", ButtonType.CLOSE);
+					error.show();
+				} catch (NumberFormatException n) {
+					Alert error = new Alert(AlertType.ERROR, "month or year format is incorrect", ButtonType.CLOSE);
+					error.show();
 				}
+				// If date range report
 			} else if (rb4.isSelected()) {
 				try {
-					dateRangeReport(startDate.getText(), endDate.getText(), f);
+					dateRangeReport(startDate.getText(), endDate.getText(), f, results);
+					Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
+							ButtonType.OK);
+					success.show();
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					Alert error = new Alert(AlertType.ERROR, f + " not found", ButtonType.CLOSE);
+					error.show();
+				} catch (NumberFormatException n) {
+					Alert error = new Alert(AlertType.ERROR, "start date or end date format is incorrect",
+							ButtonType.CLOSE);
+					error.show();
 				}
 			}
 		});
 
-		VBox vb = new VBox();
-		vb.getChildren().addAll(options, hb0, hb1, hb2, hb3, hb4, hb5, bt);
-
-		vb.setSpacing(25);
-
-		root.setCenter(vb);
-
+		// Set scene and size of window
 		Scene sc = new Scene(root);
 		oR.setScene(sc);
 		oR.setHeight(500);
-		oR.setWidth(450);
+		oR.setWidth(500);
 		oR.show();
 
 	}
 
-	private void dateRangeReport(String start, String end, String file) throws IOException {
-		// TODO Auto-generated method stub
-		FileWriter writer = new FileWriter(file);
+	/**
+	 * Compute the date range analysis for each farm and output to existing file and listView
+	 * 
+	 * @param start start date of range
+	 * @param end   end date of range
+	 * @param file  file to output to
+	 * @param results listView to write to
+	 * @throws IOException thrown if file does not exist
+	 */
+	private void dateRangeReport(String start, String end, String file, ListView results) throws IOException {
+		results.getItems().clear();
+		results.getItems().add(new Label("DATE RANGE REPORT: "));
+		File check = new File(file);
+		if (!check.exists() || check.isDirectory()) {
+			throw new IOException();
+		}
+		FileWriter writer = new FileWriter(check);
 		Farm[] table = farmTable.getTable();
 		int total = 0;
+		// Get Total Weight for calculating share
 		for (int i = 0; i < table.length; i++) {
 			Farm f = table[i];
 			if (f != null) {
-				total+=f.getWeightRange(start, end);
+				total += f.getWeightRange(start, end);
 			}
 		}
+		// Compute Share and Weight and write to file
 		for (int i = 0; i < table.length; i++) {
 			Farm f = table[i];
 			if (f != null) {
-				double percent = (100.0 * f.getWeightRange(start, end)) /total;
-				writer.write(f.getID() + " : " + "Weight = " + f.getWeight(start, end) + " Share = "
-						+ percent + "\n");
+				double percent = (100.0 * f.getWeightRange(start, end)) / total;
+				writer.write(
+						f.getID() + " : " + "Weight = " + f.getWeightRange(start, end) + " Share = " + percent + "\n");
+				results.getItems().add(new Label(
+						f.getID() + " : " + "Weight = " + f.getWeightRange(start, end) + " Share = " + percent));
 			}
 		}
 		writer.flush();
 		writer.close();
 	}
 
-	private void monthlyReport(String year, String month, String file) throws IOException {
-		FileWriter writer = new FileWriter(file);
+	/**
+	 * Compute the monthly report for each farm and output to existing file and listView
+	 * 
+	 * @param year  year to analyze
+	 * @param month month to analyze
+	 * @param file  file to output to
+	 * @param results listView to write to
+	 * @throws IOException thrown if file does not exist
+	 */
+	private void monthlyReport(String year, String month, String file, ListView results) throws IOException {
+		results.getItems().clear();
+		results.getItems().add(new Label("MONTHLY REPORT: "));
+		File check = new File(file);
+		if (!check.exists() || check.isDirectory()) {
+			throw new IOException();
+		}
+		FileWriter writer = new FileWriter(check);
 		Farm[] table = farmTable.getTable();
 		int total = 0;
 		for (int i = 0; i < table.length; i++) {
 			Farm f = table[i];
 			if (f != null) {
-				total+=f.getWeight(month, year);
+				total += f.getWeight(month, year);
 			}
 		}
 		for (int i = 0; i < table.length; i++) {
 			Farm f = table[i];
 			if (f != null) {
 				double percent = (100.0 * f.getWeight(month, year)) / total;
-				writer.write(f.getID() + " : " + "Weight = " + f.getWeight(month, year) + " Share = "
-						+ percent + "\n");
+				writer.write(f.getID() + " : " + "Weight = " + f.getWeight(month, year) + " Share = " + percent + "\n");
+				results.getItems().add(
+						new Label(f.getID() + " : " + "Weight = " + f.getWeight(month, year) + " Share = " + percent));
 			}
 		}
 		writer.flush();
 		writer.close();
 	}
 
-	private void annualReport(String year, String file) throws IOException {
-		FileWriter writer = new FileWriter(file);
+	/**
+	 * Compute the annual report for each farm and output to existing file and listView
+	 * 
+	 * @param year year of analysis
+	 * @param file file to output to
+	 * @param results ListView to write to
+	 * @throws IOException thrown if file does not exist
+	 */
+	private void annualReport(String year, String file, ListView results) throws IOException {
+		results.getItems().clear();
+		results.getItems().add(new Label("ANNUAL REPORT: "));
+		File check = new File(file);
+		if (!check.exists() || check.isDirectory()) {
+			throw new IOException();
+		}
+		FileWriter writer = new FileWriter(check);
 		Farm[] table = farmTable.getTable();
 		int total = 0;
 		for (int i = 0; i < table.length; i++) {
 			Farm f = table[i];
 			if (f != null) {
-				total+=f.getWeight(year);
+				total += f.getWeight(year);
 			}
 		}
 		for (int i = 0; i < table.length; i++) {
 			Farm f = table[i];
 			if (f != null) {
-				double percent = (100.0 * f.getWeight(year)) / farmTable.computeSum();
-				writer.write(f.getID() + " : " + "Weight = " + f.getWeight(year) + " Share = "
-						+ percent + "\n");
+				double percent = (100.0 * f.getWeight(year)) / total;
+				writer.write(f.getID() + " : " + "Weight = " + f.getWeight(year) + " Share = " + percent + "\n");
+				results.getItems().add(
+						new Label(f.getID() + " : " + "Weight = " + f.getWeight(year) + " Share = " + percent + "\n"));
 			}
 		}
 		writer.flush();
 		writer.close();
 	}
 
-	private void farmReport(String id, String year, String file) throws IOException {
-		// TODO Auto-generated method stub
-		FileWriter writer = new FileWriter(file);
+	/**
+	 * Compute the farm report by month for a specific farm and output to existing file and listView
+	 * 
+	 * @param id   identification string for specific farm
+	 * @param year year to analyze
+	 * @param file file to output to
+	 * @param results ListView to write to
+	 * @throws IOException thrown if file does not exist
+	 */
+	private void farmReport(String id, String year, String file, ListView results) throws IOException {
+		results.getItems().clear();
+		results.getItems().add(new Label("FARM REPORT: "));
+		File check = new File(file);
+		if (!check.exists() || check.isDirectory()) {
+			throw new IOException();
+		}
+		FileWriter writer = new FileWriter(check);
 		for (int i = 1; i < 13; i++) {
 			Farm f = farmTable.get(id);
 			if (f != null) {
-				double percent = (100.0 * f.getWeight(Integer.toString(i), year)) / getTotalWeight(year, Integer.toString(i));
+				double percent = (100.0 * f.getWeight(Integer.toString(i), year))
+						/ getTotalWeight(year, Integer.toString(i));
 				writer.write("Month " + i + ": " + "Weight = " + f.getWeight(Integer.toString(i), year) + " Share = "
 						+ percent + "\n");
+				results.getItems().add(new Label("Month " + i + ": " + "Weight = "
+						+ f.getWeight(Integer.toString(i), year) + " Share = " + percent + "\n"));
 			}
 		}
 		writer.flush();
 		writer.close();
 	}
 
+	/**
+	 * Get total weight for all farms for a given month and year
+	 * 
+	 * @param year  year for a specific sum
+	 * @param month month for a specific sum
+	 * @return total weight of all farms for given month and year
+	 */
 	private int getTotalWeight(String year, String month) {
 		Farm[] table = farmTable.getTable();
 		int total = 0;
 		for (int i = 0; i < table.length; i++) {
 			Farm f = table[i];
 			if (f != null) {
-				total+=f.getWeight(month, year);
+				total += f.getWeight(month, year);
 			}
 		}
 		return total;
@@ -430,7 +498,7 @@ public class Main extends Application {
 		year3.setPromptText("Year: yyyy");
 		year3.setFocusTraversable(false);
 		Button filter = new Button("Filter");
-		ListView allFarmsList = getFarms();
+		ListView allFarmsList = new ListView();
 		filter.setOnAction(e -> getFarms(month2.getText(), year3.getText(), allFarmsList));
 		userInput3.getChildren().addAll(month2, year3, filter);
 		allFarms.getChildren().addAll(userInput3, allFarmsList);
@@ -451,40 +519,27 @@ public class Main extends Application {
 	}
 
 	/**
-	 * Helper method to get all the farms in the list view GUI object
+	 * Get each farm's total weight and share for a given month and year
 	 * 
-	 * @return listView that has all farms and shares
-	 */
-	private ListView getFarms() {
-		ListView lv = new ListView();
-		Farm[] table = farmTable.getTable();
-		for (int i = 0; i < table.length; i++) {
-			Farm f = table[i];
-			if (f != null) {
-				System.out.println(f.getUpdates().toString());
-				double percent = (100.0 * f.getWeight()) / farmTable.computeSum();
-				Label farm = new Label(f.getID() + " => " + "Weight: " + f.getWeight() + " ,Share: " + percent + "%"
-						+ ", Last Modfified: " + f.getDate());
-				lv.getItems().add(farm);
-			}
-		}
-		return lv;
-	}
-
-	/**
-	 * 
-	 * @return
+	 * @return listView containing total weight and shares for each farm
 	 */
 	private void getFarms(String month, String year, ListView lv) {
 		lv.getItems().clear();
 		Farm[] table = farmTable.getTable();
+		int total = 0;
+		for (int i = 0; i < table.length; i++) {
+			Farm f = table[i];
+			if (f != null) {
+				total += f.getWeight(month, year);
+			}
+		}
 		for (int i = 0; i < table.length; i++) {
 			Farm f = table[i];
 			if (f != null) {
 				if (f.getWeight(month, year) == 0) {
 					lv.getItems().add(new Label("Farm was not updated in this period of time"));
 				}
-				double percent = (100.0 * f.getWeight(month, year)) / farmTable.computeSum();
+				double percent = (100.0 * f.getWeight(month, year)) / total;
 				Label farm = new Label(f.getID() + " => " + "Weight: " + f.getWeight(month, year) + " ,Share: "
 						+ percent + "%" + ", Last Modfified: " + f.getDate());
 				lv.getItems().add(farm);

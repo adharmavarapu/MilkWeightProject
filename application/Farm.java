@@ -26,6 +26,7 @@ package application;
  */
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -109,7 +110,8 @@ public class Farm {
 	 * 
 	 * @param month month to filter for
 	 * @param year  year to filter for
-	 * @return double array that contains the min(0), max(1), avg(1)
+	 * @return double array that contains the min(index = 0), max(index = 1),
+	 *         avg(index = 2)
 	 */
 	public double[] getMinMaxAvg(String month, String year) {
 		int sum = 0;
@@ -133,62 +135,95 @@ public class Farm {
 		return new double[] { min, max, (1.0 * sum / count) };
 	}
 
-
+	/**
+	 * Get total weight for a given month and year
+	 * 
+	 * @param month specific month to find total weight of
+	 * @param year  specific year to find total weight of
+	 * @return total weight by month and year
+	 */
 	public int getWeight(String month, String year) {
 		int weightTotal = 0;
-		for (int i = updateList.size()-1; i >= 0; i--) {
+		for (int i = updateList.size() - 1; i >= 0; i--) {
 			FarmUpdate u = updateList.get(i);
 			String[] currDate = u.currDate.split("-");
 			if (Integer.parseInt(currDate[0]) == Integer.parseInt(year)
 					&& Integer.parseInt(currDate[1]) == Integer.parseInt(month)) {
-				weightTotal+=u.currWeight;
+				weightTotal += u.currWeight;
 			}
 		}
 		return weightTotal;
 	}
+
+	/**
+	 * Get total weight for a given year
+	 * 
+	 * @param year specific year to find total weight of
+	 * @return total weight by year
+	 */
 	public int getWeight(String year) {
 		int weightTotal = 0;
-		for (int i = updateList.size()-1; i >= 0; i--) {
+		for (int i = updateList.size() - 1; i >= 0; i--) {
 			FarmUpdate u = updateList.get(i);
 			String[] currDate = u.currDate.split("-");
 			if (Integer.parseInt(currDate[0]) == Integer.parseInt(year)) {
-				weightTotal+=u.currWeight;
+				weightTotal += u.currWeight;
 			}
 		}
 		return weightTotal;
 	}
+
+	/**
+	 * Compute date for a given weight range
+	 * 
+	 * @param start start date for range
+	 * @param end   end date for range
+	 * @return total weight for that range
+	 */
 	public int getWeightRange(String start, String end) {
 		int weightOverRange = 0;
 		String[] startDate = start.split("-");
-		String[] endDate = start.split("-"); 
-		boolean add = false;
+		String[] endDate = end.split("-");
+		int startIndex = 0;
+		int endIndex = 0;
 		for (int i = 0; i < updateList.size(); i++) {
 			FarmUpdate u = updateList.get(i);
 			String[] currDate = u.currDate.split("-");
 			String[] prevDate = u.prevDate.split("-");
-			if(add) {
-				weightOverRange+=u.currWeight;
+			System.out.println(" " + Integer.parseInt(endDate[0]) + " " + Integer.parseInt(endDate[1]) + " "
+					+ Integer.parseInt(endDate[2]));
+			System.out.println(" " + Integer.parseInt(currDate[0]) + " " + Integer.parseInt(currDate[1]) + " "
+					+ Integer.parseInt(currDate[2]));
+			if (Integer.parseInt(currDate[0]) == Integer.parseInt(startDate[0])
+					&& Integer.parseInt(currDate[1]) == Integer.parseInt(startDate[1])
+					&& Integer.parseInt(currDate[2]) == Integer.parseInt(startDate[2])) {
+				startIndex = i;
 			}
-			if (Integer.parseInt(prevDate[0]) == Integer.parseInt(startDate[0])
-					&& Integer.parseInt(prevDate[1]) == Integer.parseInt(startDate[1])
-					&& Integer.parseInt(prevDate[2]) == Integer.parseInt(startDate[2])) {
-				weightOverRange+=u.currWeight;
-				add = true;
+			if (Integer.parseInt(currDate[0]) == Integer.parseInt(endDate[0])
+					&& Integer.parseInt(currDate[1]) == Integer.parseInt(endDate[1])
+					&& Integer.parseInt(currDate[2]) == Integer.parseInt(endDate[2])) {
+				System.out.println("try");
+				endIndex = i;
 			}
-			if (add && Integer.parseInt(prevDate[0]) == Integer.parseInt(endDate[0])
-					&& Integer.parseInt(prevDate[1]) == Integer.parseInt(endDate[1])
-					&& Integer.parseInt(prevDate[2]) == Integer.parseInt(endDate[2])) {
-				break;
-			}
+		}
+		System.out.print("Start: " + startIndex + "End: " + endIndex);
+		for (int i = startIndex; i <= endIndex; i++) {
+			weightOverRange += updateList.get(i).currWeight;
 		}
 		return weightOverRange;
 
 	}
+
+	/**
+	 * Remove an update for a given date
+	 * 
+	 * @param date date of update to remove
+	 */
 	public void remove(String date) {
 		String year = date.split("-")[0];
 		String month = date.split("-")[1];
 		String day = date.split("-")[2];
-		
+
 		for (int i = 0; i < updateList.size(); i++) {
 			FarmUpdate u = updateList.get(i);
 			String[] currDate = u.currDate.split("-");
@@ -201,45 +236,46 @@ public class Farm {
 			if (!prevDate[0].equals("Start") && Integer.parseInt(prevDate[0]) == Integer.parseInt(year)
 					&& Integer.parseInt(prevDate[1]) == Integer.parseInt(month)
 					&& Integer.parseInt(prevDate[2]) == Integer.parseInt(day)) {
-				if(i == 0) {
+				if (i == 0) {
 					u.prevDate = "START";
 					u.prevWeight = 0;
-				}
-				else {
-					u.prevDate = updateList.get(i-1).currDate;
-					u.prevWeight = updateList.get(i-1).currWeight;
+				} else {
+					u.prevDate = updateList.get(i - 1).currDate;
+					u.prevWeight = updateList.get(i - 1).currWeight;
 				}
 			}
 		}
 	}
+
 	/**
+	 * Update an existing data point
 	 * 
-	 * @param oldDate
-	 * @param newDate
-	 * @param oldWeight
-	 * @param newWeight
+	 * @param oldDate   oldDate of the existing data point
+	 * @param newDate   newDate of the existing data point
+	 * @param oldWeight updated oldWeight for the data point
+	 * @param newWeight updated newWeight for the data point
 	 */
 	public void update(String oldDate, String newDate, int oldWeight, int newWeight) {
-		
+
 		for (FarmUpdate u : updateList) {
 			String[] prevDate = u.prevDate.split("-");
 			String[] currDate = u.currDate.split("-");
-			
+
 			String prevYear = prevDate[0];
 			String prevMonth = prevDate[1];
 			String prevDay = prevDate[2];
-			
+
 			String currYear = currDate[0];
 			String currMonth = currDate[1];
 			String currDay = currDate[2];
-			
+
 			if (Integer.parseInt(prevDate[0]) == Integer.parseInt(prevYear)
 					&& Integer.parseInt(prevDate[1]) == Integer.parseInt(prevMonth)
 					&& Integer.parseInt(prevDate[2]) == Integer.parseInt(prevDay)) {
-				if(Integer.parseInt(currDate[0]) == Integer.parseInt(currYear)
-					&& Integer.parseInt(currDate[1]) == Integer.parseInt(currMonth)
-					&& Integer.parseInt(currDate[2]) == Integer.parseInt(currDay)) {
-					
+				if (Integer.parseInt(currDate[0]) == Integer.parseInt(currYear)
+						&& Integer.parseInt(currDate[1]) == Integer.parseInt(currMonth)
+						&& Integer.parseInt(currDate[2]) == Integer.parseInt(currDay)) {
+
 				}
 				u.prevWeight = oldWeight;
 				u.currWeight = newWeight;

@@ -135,25 +135,27 @@ public class Farm {
 
 
 	public int getWeight(String month, String year) {
+		int weightTotal = 0;
 		for (int i = updateList.size()-1; i >= 0; i--) {
 			FarmUpdate u = updateList.get(i);
 			String[] currDate = u.currDate.split("-");
 			if (Integer.parseInt(currDate[0]) == Integer.parseInt(year)
 					&& Integer.parseInt(currDate[1]) == Integer.parseInt(month)) {
-				return u.currWeight;
+				weightTotal+=u.currWeight;
 			}
 		}
-		return 0;
+		return weightTotal;
 	}
 	public int getWeight(String year) {
+		int weightTotal = 0;
 		for (int i = updateList.size()-1; i >= 0; i--) {
 			FarmUpdate u = updateList.get(i);
 			String[] currDate = u.currDate.split("-");
 			if (Integer.parseInt(currDate[0]) == Integer.parseInt(year)) {
-				return u.currWeight;
+				weightTotal+=u.currWeight;
 			}
 		}
-		return 0;
+		return weightTotal;
 	}
 	public int getWeightRange(String start, String end) {
 		int weightOverRange = 0;
@@ -173,7 +175,7 @@ public class Farm {
 				weightOverRange+=u.currWeight;
 				add = true;
 			}
-			if (!prevDate[0].equals("Start") && Integer.parseInt(prevDate[0]) == Integer.parseInt(endDate[0])
+			if (add && Integer.parseInt(prevDate[0]) == Integer.parseInt(endDate[0])
 					&& Integer.parseInt(prevDate[1]) == Integer.parseInt(endDate[1])
 					&& Integer.parseInt(prevDate[2]) == Integer.parseInt(endDate[2])) {
 				break;

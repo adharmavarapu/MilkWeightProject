@@ -223,8 +223,9 @@ public class Main extends Application {
 			bt.setVisible(true);
 		});
 		bt.setOnAction(e -> {
-			File f = new File(filePath.getText());
+			String f = filePath.getText();
 			if (rb1.isSelected()) {
+				
 				try {
 					farmReport(farmID.getText(), year.getText(), f);
 					System.out.println("Done");
@@ -271,69 +272,98 @@ public class Main extends Application {
 
 	}
 
-	private void dateRangeReport(String start, String end, File file) throws IOException {
+	private void dateRangeReport(String start, String end, String file) throws IOException {
 		// TODO Auto-generated method stub
+		FileWriter writer = new FileWriter(file);
 		Farm[] table = farmTable.getTable();
-		FileWriter myWriter = new FileWriter(file);
-		BufferedWriter writer = new BufferedWriter(myWriter);
+		int total = 0;
 		for (int i = 0; i < table.length; i++) {
 			Farm f = table[i];
 			if (f != null) {
-				double percent = (100.0 * f.getWeightRange(start, end)) / farmTable.computeSum();
-				writer.write(f.getID() + " " + i + ": " + "Weight = " + f.getWeight(start, end) + " Share = "
-						+ percent);
-				writer.newLine();
+				total+=f.getWeightRange(start, end);
 			}
 		}
-		writer.close();
-	}
-
-	private void monthlyReport(String year, String month, File file) throws IOException {
-		Farm[] table = farmTable.getTable();
-		FileWriter myWriter = new FileWriter(file);
-		BufferedWriter writer = new BufferedWriter(myWriter);
 		for (int i = 0; i < table.length; i++) {
 			Farm f = table[i];
 			if (f != null) {
-				double percent = (100.0 * f.getWeight(month, year)) / farmTable.computeSum();
-				writer.write(f.getID() + " " + i + ": " + "Weight = " + f.getWeight(month, year) + " Share = "
-						+ percent);
-				writer.newLine();
+				double percent = (100.0 * f.getWeightRange(start, end)) /total;
+				writer.write(f.getID() + " : " + "Weight = " + f.getWeight(start, end) + " Share = "
+						+ percent + "\n");
 			}
 		}
+		writer.flush();
 		writer.close();
 	}
 
-	private void annualReport(String year, File file) throws IOException {
+	private void monthlyReport(String year, String month, String file) throws IOException {
+		FileWriter writer = new FileWriter(file);
 		Farm[] table = farmTable.getTable();
-		FileWriter myWriter = new FileWriter(file);
-		BufferedWriter writer = new BufferedWriter(myWriter);
+		int total = 0;
+		for (int i = 0; i < table.length; i++) {
+			Farm f = table[i];
+			if (f != null) {
+				total+=f.getWeight(month, year);
+			}
+		}
+		for (int i = 0; i < table.length; i++) {
+			Farm f = table[i];
+			if (f != null) {
+				double percent = (100.0 * f.getWeight(month, year)) / total;
+				writer.write(f.getID() + " : " + "Weight = " + f.getWeight(month, year) + " Share = "
+						+ percent + "\n");
+			}
+		}
+		writer.flush();
+		writer.close();
+	}
+
+	private void annualReport(String year, String file) throws IOException {
+		FileWriter writer = new FileWriter(file);
+		Farm[] table = farmTable.getTable();
+		int total = 0;
+		for (int i = 0; i < table.length; i++) {
+			Farm f = table[i];
+			if (f != null) {
+				total+=f.getWeight(year);
+			}
+		}
 		for (int i = 0; i < table.length; i++) {
 			Farm f = table[i];
 			if (f != null) {
 				double percent = (100.0 * f.getWeight(year)) / farmTable.computeSum();
-				writer.write(f.getID() + " " + i + ": " + "Weight = " + f.getWeight(year) + " Share = "
-						+ percent);
-				writer.newLine();
+				writer.write(f.getID() + " : " + "Weight = " + f.getWeight(year) + " Share = "
+						+ percent + "\n");
 			}
 		}
+		writer.flush();
 		writer.close();
 	}
 
-	private void farmReport(String id, String year, File file) throws IOException {
+	private void farmReport(String id, String year, String file) throws IOException {
 		// TODO Auto-generated method stub
-		FileWriter myWriter = new FileWriter(file);
-		BufferedWriter writer = new BufferedWriter(myWriter);
+		FileWriter writer = new FileWriter(file);
 		for (int i = 1; i < 13; i++) {
 			Farm f = farmTable.get(id);
 			if (f != null) {
-				double percent = (100.0 * f.getWeight(Integer.toString(i), year)) / farmTable.computeSum();
+				double percent = (100.0 * f.getWeight(Integer.toString(i), year)) / getTotalWeight(year, Integer.toString(i));
 				writer.write("Month " + i + ": " + "Weight = " + f.getWeight(Integer.toString(i), year) + " Share = "
-						+ percent);
-				writer.newLine();
+						+ percent + "\n");
 			}
 		}
+		writer.flush();
 		writer.close();
+	}
+
+	private int getTotalWeight(String year, String month) {
+		Farm[] table = farmTable.getTable();
+		int total = 0;
+		for (int i = 0; i < table.length; i++) {
+			Farm f = table[i];
+			if (f != null) {
+				total+=f.getWeight(month, year);
+			}
+		}
+		return total;
 	}
 
 	/**

@@ -413,16 +413,17 @@ public class FarmTable implements HashTableADT<String, Farm> {
 			if (f != null) {
 				HBox hb = new HBox();
 				double[] a = f.getMinMaxAvg(month, year);
-				System.out.println(Arrays.toString(a));
 				int min = (int) a[0];
 				int max = (int) a[1];
-				double avg = a[2];
-				if (min != Integer.MAX_VALUE && max != Integer.MIN_VALUE && avg != Double.NaN) {
-					Label farm = new Label(f.getID() + ": ");
-					Label analysis = new Label("Min: " + min + ", Max: " + max + ", Avg: " + avg);
-					hb.getChildren().addAll(farm, analysis);
-					results.getItems().add(hb);
+				if(min == Integer.MAX_VALUE) {
+					min = 0;
 				}
+				if(max == Integer.MIN_VALUE) {
+					max = 0;
+				}
+				double avg = a[2];
+				Label analysis = new Label(f.getID() + ": "  + "Min: " + min + ", Max: " + max + ", Avg: " + avg);
+				results.getItems().add(analysis);
 			}
 		}
 	}
@@ -445,12 +446,9 @@ public class FarmTable implements HashTableADT<String, Farm> {
 		for (int i = 0; i < table.length; i++) {
 			Farm f = table[i];
 			if (f != null) {
-				if (f.getWeight(month, year) == 0) {
-					lv.getItems().add(new Label("Farm was not updated in this period of time"));
-				}
 				double percent = (100.0 * f.getWeight(month, year)) / total;
 				Label farm = new Label(f.getID() + " => " + "Weight: " + f.getWeight(month, year) + " ,Share: "
-						+ percent + "%" + ", Last Modfified: " + f.getDate());
+						+ percent + "%" + ", Last Modified: " + f.getDate());
 				lv.getItems().add(farm);
 			}
 		}

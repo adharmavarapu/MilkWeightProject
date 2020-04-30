@@ -46,6 +46,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
@@ -213,44 +214,50 @@ public class Main extends Application {
 
 		HBox hb5 = new HBox();
 		TextField filePath = new TextField(); // HBox for file path
-		filePath.setPromptText("file path");
+		filePath.setPromptText("file path (.csv)");
 		hb5.getChildren().addAll(new Label("File Path: "), filePath);
 
 		// Box of input types for specific output
 		VBox inputBox = new VBox();
 		inputBox.setSpacing(25);
 
+		HBox buttonCheckBox = new HBox();
 		Button bt = new Button("Output"); // Output Button
-		bt.setVisible(false);
+		
+		//Check if you output to file
+		CheckBox output = new CheckBox("Output to file"); 
+		buttonCheckBox.getChildren().addAll(bt, output);
+		buttonCheckBox.setSpacing(10);
+		buttonCheckBox.setVisible(false);
 
 		// Change the inputs available based on output option
 		rb1.setOnAction(e -> {
-			bt.setVisible(true);
+			buttonCheckBox.setVisible(true);
 			inputBox.getChildren().clear();
 			inputBox.getChildren().addAll(hb0, hb1, hb5);
 		});
 		rb2.setOnAction(e -> {
-			bt.setVisible(true);
+			buttonCheckBox.setVisible(true);
 			inputBox.getChildren().clear();
 			inputBox.getChildren().addAll(hb1, hb5);
 		});
 		rb3.setOnAction(e -> {
-			bt.setVisible(true);
+			buttonCheckBox.setVisible(true);
 			inputBox.getChildren().clear();
 			inputBox.getChildren().addAll(hb1, hb2, hb5);
 		});
 		rb4.setOnAction(e -> {
-			bt.setVisible(true);
+			buttonCheckBox.setVisible(true);
 			inputBox.getChildren().clear();
 			inputBox.getChildren().addAll(hb3, hb4, hb5);
 		});
 
+		//Data list for output
 		ListView results = new ListView();
-		results.getItems().add(new Label("Results: "));
 
 		// Vertical box containing options, input and upload button
 		VBox vb = new VBox();
-		vb.getChildren().addAll(options, inputBox, bt, results);
+		vb.getChildren().addAll(options, inputBox, buttonCheckBox, results);
 		vb.setSpacing(25);
 		root.setCenter(vb);
 
@@ -262,10 +269,12 @@ public class Main extends Application {
 			if (rb1.isSelected()) {
 				try {
 					farmTable.farmReport(farmID.getText(), year.getText(), results);
-					listViewtoFile(results, f);
-					Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
-							ButtonType.OK);
-					success.show();
+					if(output.isSelected()) {
+						listViewtoFile(results, f);
+						Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
+								ButtonType.OK);
+						success.show();
+					}
 				} catch (IOException e1) {
 					alert.setContentText(f + " not found");
 					alert.show();
@@ -280,10 +289,12 @@ public class Main extends Application {
 					results.getItems().sort(c);
 					vb.getChildren().remove(results);
 					vb.getChildren().add(results);
-					listViewtoFile(results, f);
-					Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
-							ButtonType.OK);
-					success.show();
+					if(output.isSelected()) {
+						listViewtoFile(results, f);
+						Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
+								ButtonType.OK);
+						success.show();
+					}
 				} catch (IOException e1) {
 					alert.setContentText(f + " not found");
 					alert.show();
@@ -298,10 +309,12 @@ public class Main extends Application {
 					results.getItems().sort(c);
 					vb.getChildren().remove(results);
 					vb.getChildren().add(results);
-					listViewtoFile(results, f);
-					Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
-							ButtonType.OK);
-					success.show();
+					if(output.isSelected()) {
+						listViewtoFile(results, f);
+						Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
+								ButtonType.OK);
+						success.show();
+					}
 				} catch (IOException e1) {
 					alert.setContentText(f + " not found");
 					alert.show();
@@ -316,10 +329,12 @@ public class Main extends Application {
 					results.getItems().sort(c);
 					vb.getChildren().remove(results);
 					vb.getChildren().add(results);
-					listViewtoFile(results, f);
-					Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
-							ButtonType.OK);
-					success.show();
+					if(output.isSelected()) {
+						listViewtoFile(results, f);
+						Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
+								ButtonType.OK);
+						success.show();
+					}
 				} catch (IOException e1) {
 					alert.setContentText(f + " not found");
 					alert.show();
@@ -748,7 +763,7 @@ public class Main extends Application {
 
 		HBox upload = new HBox(); // HBox for file input
 		TextField fileInput = new TextField();
-		fileInput.setPromptText("File path");
+		fileInput.setPromptText("File path (.csv)");
 		fileInput.setFocusTraversable(false);
 		upload.getChildren().addAll(new Label("Enter Path of File: "), fileInput);
 		Button bt = new Button("DONE"); // Done Button

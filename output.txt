@@ -1,100 +1,12 @@
-Farm 18 : Weight = 77043 Share = 0.3029202712572137
-Farm 19 : Weight = 64660 Share = 0.2542323733433464
-Farm 20 : Weight = 380048 Share = 1.494285571054626
-Farm 21 : Weight = 126427 Share = 0.4970899515106597
-Farm 22 : Weight = 529752 Share = 2.082896817868612
-Farm 23 : Weight = 331263 Share = 1.3024710592458546
-Farm 24 : Weight = 7307 Share = 0.028729909557993073
-Farm 25 : Weight = 562109 Share = 2.2101191640528164
-Farm 26 : Weight = 547197 Share = 2.151487658465189
-Farm 27 : Weight = 98629 Share = 0.387792835609046
-Farm 28 : Weight = 560961 Share = 2.20560541885334
-Farm 29 : Weight = 9020 Share = 0.035465140853031
-Farm 30 : Weight = 373670 Share = 1.4692083350944671
-Farm 31 : Weight = 313091 Share = 1.2310217754785286
-Farm 32 : Weight = 78688 Share = 0.30938813785402475
-Farm 33 : Weight = 66563 Share = 0.2617146530599005
-Farm 34 : Weight = 95019 Share = 0.37359891560023867
-Farm 35 : Weight = 535397 Share = 2.105092019655237
-Farm 36 : Weight = 4018 Share = 0.015798108198168355
-Farm 37 : Weight = 214865 Share = 0.8448134688898565
-Farm 38 : Weight = 560554 Share = 2.204005162497776
-Farm 39 : Weight = 74131 Share = 0.291470771239029
-Farm 40 : Weight = 515672 Share = 2.027536598000466
-Farm 41 : Weight = 569915 Share = 2.240811058675739
-Farm 42 : Weight = 523919 Share = 2.0599624313280653
-Farm 43 : Weight = 96075 Share = 0.3777509320903496
-Farm 44 : Weight = 8363 Share = 0.03288192604810402
-Farm 45 : Weight = 296864 Share = 1.16721990844725
-Farm 46 : Weight = 322038 Share = 1.2661998924643456
-Farm 47 : Weight = 351037 Share = 1.380219140756701
-Farm 48 : Weight = 100765 Share = 0.39619123260040673
-Farm 49 : Weight = 10601 Share = 0.04168137008680506
-Farm 50 : Weight = 560492 Share = 2.203761388802334
-Farm 51 : Weight = 200579 Share = 0.7886432912594352
-Farm 52 : Weight = 216167 Share = 0.849932716494141
-Farm 53 : Weight = 339661 Share = 1.3354905994768695
-Farm 54 : Weight = 257206 Share = 1.0112912437078372
-Farm 55 : Weight = 542200 Share = 2.1318402849793134
-Farm 56 : Weight = 10801 Share = 0.04246773684629577
-Farm 57 : Weight = 220441 Share = 0.8667373741444575
-Farm 58 : Weight = 567616 Share = 2.231771772775393
-Farm 59 : Weight = 544469 Share = 2.1407616158657357
-Farm 60 : Weight = 283912 Share = 1.1162947971026316
-Farm 61 : Weight = 559507 Share = 2.1998885325118422
-Farm 62 : Weight = 302331 Share = 1.1887152438179285
-Farm 63 : Weight = 552434 Share = 2.172078672062453
-Farm 64 : Weight = 541824 Share = 2.1303619154714712
-Farm 65 : Weight = 195917 Share = 0.7703130820957067
-Farm 66 : Weight = 1972 Share = 0.0077535762485783965
-Farm 67 : Weight = 544228 Share = 2.1398140439205493
-Farm 68 : Weight = 326770 Share = 1.2848053299938957
-Farm 69 : Weight = 285339 Share = 1.1219055239315978
-Farm 70 : Weight = 109706 Share = 0.43134575858343893
-Farm 71 : Weight = 358430 Share = 1.4092871880212752
-Farm 72 : Weight = 575223 Share = 2.2616812324726223
-Farm 73 : Weight = 86773 Share = 0.3411770141064367
-Farm 74 : Weight = 215135 Share = 0.845875064015169
-Farm 75 : Weight = 243220 Share = 0.9563006162166519
-Farm 76 : Weight = 121763 Share = 0.47875187867933633
-Farm 77 : Weight = 327384 Share = 1.2872194759455322
-Farm 78 : Weight = 270337 Share = 1.0629201533021997
-Farm 79 : Weight = 6182 Share = 0.024306596535857834
-Farm 80 : Weight = 270338 Share = 1.0629240851359971
-Farm 81 : Weight = 347328 Share = 1.365635969201946
-Farm 82 : Weight = 98986 Share = 0.3891965002747369
-Farm 83 : Weight = 260612 Share = 1.024683069621964
-Farm 84 : Weight = 70464 Share = 0.2770527367037668
-Farm 85 : Weight = 307017 Share = 1.2071398169927958
-Farm 86 : Weight = 82011 Share = 0.3224536215629629
-Farm 87 : Weight = 3441 Share = 0.013529440097037658
-Farm 88 : Weight = 11687 Share = 0.04595134159083961
-Farm 89 : Weight = 111579 Share = 0.4387100832860694
-Farm 90 : Weight = 514790 Share = 2.024068720591112
-Farm 91 : Weight = 290815 Share = 1.1434362458064535
-Farm 92 : Weight = 111052 Share = 0.4366380068748114
-Farm 93 : Weight = 545794 Share = 2.1459712956473616
-Farm 94 : Weight = 108783 Share = 0.4277166759883893
-Farm 95 : Weight = 6886 Share = 0.02707460752926513
-Farm 96 : Weight = 16712 Share = 0.06570880642304369
-Farm 97 : Weight = 116103 Share = 0.45649769938574924
-Farm 98 : Weight = 527988 Share = 2.075961063049904
-Farm 99 : Weight = 377702 Share = 1.4850614889658
-Farm 100 : Weight = 289921 Share = 1.13992118639153
-Farm 101 : Weight = 246216 Share = 0.9680803902738228
-Farm 102 : Weight = 552193 Share = 2.171131100117267
-Farm 103 : Weight = 82762 Share = 0.32540642874485054
-Farm 104 : Weight = 93219 Share = 0.36652161476482226
-Farm 105 : Weight = 9278 Share = 0.03647955397277402
-Farm 106 : Weight = 275422 Share = 1.082913528162251
-Farm 107 : Weight = 271741 Share = 1.0684404479538245
-Farm 108 : Weight = 2737 Share = 0.01076142910363036
-Farm 109 : Weight = 111155 Share = 0.43704298575594913
-Farm 111 : Weight = 85970 Share = 0.33801975156708153
-Farm 112 : Weight = 553638 Share = 2.1768125999545873
-Farm 113 : Weight = 17391 Share = 0.06837852157151465
-Farm 114 : Weight = 7965 Share = 0.031317056196717506
-Farm 115 : Weight = 276212 Share = 1.0860196768622394
-Farm 116 : Weight = 362524 Share = 1.42538411558805
-Farm 117 : Weight = 120195 Share = 0.47258676328492916
-Farm 110 : Weight = 121118 Share = 0.4762158458799788
+Month 1: Weight = 280795 Share = 1.058267281844472%
+Month 2: Weight = 0 Share = NaN%
+Month 3: Weight = 0 Share = NaN%
+Month 4: Weight = 0 Share = NaN%
+Month 5: Weight = 0 Share = NaN%
+Month 6: Weight = 0 Share = NaN%
+Month 7: Weight = 0 Share = NaN%
+Month 8: Weight = 0 Share = NaN%
+Month 9: Weight = 0 Share = NaN%
+Month 10: Weight = 0 Share = NaN%
+Month 11: Weight = 0 Share = NaN%
+Month 12: Weight = 0 Share = NaN%

@@ -32,8 +32,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.IllegalFormatException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -64,10 +64,17 @@ import javafx.stage.Stage;
  *
  */
 public class Main extends Application {
-	private List<String> args;
-	private static final String APP_TITLE = "Milk Weights";
-	private FarmTable farmTable;
-	private final Comparator c = new Comparator<Label>() {
+	private List<String> args; //System arguments
+	private static final String APP_TITLE = "Milk Weights"; //Title of the main window
+	private FarmTable farmTable; //Farm table to store data
+	private final Comparator c = new Comparator<Label>() { //Comparator used to sort the lists
+		/**
+		 * Compares the beginning of each label(id)
+		 * 
+		 * @param o1 first label to compare
+		 * @param o2 second label to compare
+		 * @return int comparison in the form of o1.compareTo(o2)
+		 */
 		@Override
 		public int compare(Label o1, Label o2) {
 			String s1 = o1.getText().substring(0, o1.getText().indexOf(':')).trim();
@@ -148,6 +155,9 @@ public class Main extends Application {
 		primaryStage.setTitle(APP_TITLE);
 		primaryStage.setScene(mainScene);
 		primaryStage.show();
+
+		// Prompt user for file before going to dashboard
+		uploadFileWindow(primaryStage);
 	}
 
 	/**
@@ -246,26 +256,27 @@ public class Main extends Application {
 
 		// Upload and compute outputs based off output selection
 		bt.setOnAction(e -> {
+			Alert alert = new Alert(AlertType.ERROR, "", ButtonType.CANCEL);
 			String f = filePath.getText();
 			// If farm report
 			if (rb1.isSelected()) {
 				try {
-					farmReport(farmID.getText(), year.getText(), results);
+					farmTable.farmReport(farmID.getText(), year.getText(), results);
 					listViewtoFile(results, f);
 					Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
 							ButtonType.OK);
 					success.show();
 				} catch (IOException e1) {
-					Alert error = new Alert(AlertType.ERROR, f + " not found", ButtonType.CLOSE);
-					error.show();
+					alert.setContentText(f + " not found");
+					alert.show();
 				} catch (NumberFormatException n) {
-					Alert error = new Alert(AlertType.ERROR, "year format is incorrect", ButtonType.CLOSE);
-					error.show();
+					alert.setContentText("year format is incorrect");
+					alert.show();
 				}
 				// If annual report
 			} else if (rb2.isSelected()) {
 				try {
-					annualReport(year.getText(), results);
+					farmTable.annualReport(year.getText(), results);
 					results.getItems().sort(c);
 					vb.getChildren().remove(results);
 					vb.getChildren().add(results);
@@ -274,17 +285,16 @@ public class Main extends Application {
 							ButtonType.OK);
 					success.show();
 				} catch (IOException e1) {
-					Alert error = new Alert(AlertType.ERROR, f + " not found", ButtonType.CLOSE);
-					error.show();
+					alert.setContentText(f + " not found");
+					alert.show();
 				} catch (NumberFormatException n) {
-					n.printStackTrace();
-					Alert error = new Alert(AlertType.ERROR, "year format is incorrect", ButtonType.CLOSE);
-					error.show();
+					alert.setContentText("year format is incorrect");
+					alert.show();
 				}
 				// If monthly report
 			} else if (rb3.isSelected()) {
 				try {
-					monthlyReport(year.getText(), month.getText(), results);
+					farmTable.monthlyReport(year.getText(), month.getText(), results);
 					results.getItems().sort(c);
 					vb.getChildren().remove(results);
 					vb.getChildren().add(results);
@@ -293,16 +303,16 @@ public class Main extends Application {
 							ButtonType.OK);
 					success.show();
 				} catch (IOException e1) {
-					Alert error = new Alert(AlertType.ERROR, f + " not found", ButtonType.CLOSE);
-					error.show();
+					alert.setContentText(f + " not found");
+					alert.show();
 				} catch (NumberFormatException n) {
-					Alert error = new Alert(AlertType.ERROR, "month or year format is incorrect", ButtonType.CLOSE);
-					error.show();
+					alert.setContentText("year format is incorrect");
+					alert.show();
 				}
 				// If date range report
 			} else if (rb4.isSelected()) {
 				try {
-					dateRangeReport(startDate.getText(), endDate.getText(), results);
+					farmTable.dateRangeReport(startDate.getText(), endDate.getText(), results);
 					results.getItems().sort(c);
 					vb.getChildren().remove(results);
 					vb.getChildren().add(results);
@@ -311,12 +321,11 @@ public class Main extends Application {
 							ButtonType.OK);
 					success.show();
 				} catch (IOException e1) {
-					Alert error = new Alert(AlertType.ERROR, f + " not found", ButtonType.CLOSE);
-					error.show();
+					alert.setContentText(f + " not found");
+					alert.show();
 				} catch (NumberFormatException n) {
-					Alert error = new Alert(AlertType.ERROR, "start date or end date format is incorrect",
-							ButtonType.CLOSE);
-					error.show();
+					alert.setContentText("year format is incorrect");
+					alert.show();
 				}
 			}
 		});
@@ -348,138 +357,6 @@ public class Main extends Application {
 		}
 		writer.flush();
 		writer.close();
-	}
-
-	/**
-	 * Compute the date range analysis for each farm and output to existing listView
-	 * 
-	 * @param start   start date of range
-	 * @param end     end date of range
-	 * @param file    file to output to
-	 * @param results listView to write to
-	 */
-	private void dateRangeReport(String start, String end, ListView results) {
-		results.getItems().clear();
-		// results.getItems().add(new Label("DATE RANGE REPORT: "));
-		Farm[] table = farmTable.getTable();
-		int total = 0;
-		// Get Total Weight for calculating share
-		for (int i = 0; i < table.length; i++) {
-			Farm f = table[i];
-			if (f != null) {
-				total += f.getWeightRange(start, end);
-			}
-		}
-		// Compute Share and Weight and write to file
-		for (int i = 0; i < table.length; i++) {
-			Farm f = table[i];
-			if (f != null) {
-				double percent = (100.0 * f.getWeightRange(start, end)) / total;
-				results.getItems().add(new Label(
-						f.getID() + " : " + "Weight = " + f.getWeightRange(start, end) + " Share = " + percent));
-			}
-		}
-	}
-
-	/**
-	 * Compute the monthly report for each farm and output to existing listView
-	 * 
-	 * @param year    year to analyze
-	 * @param month   month to analyze
-	 * @param results listView to write to
-	 */
-	private void monthlyReport(String year, String month, ListView results) {
-		results.getItems().clear();
-		Farm[] table = farmTable.getTable();
-		int total = 0;
-		for (int i = 0; i < table.length; i++) {
-			Farm f = table[i];
-			if (f != null) {
-				total += f.getWeight(month, year);
-			}
-		}
-		for (int i = 0; i < table.length; i++) {
-			Farm f = table[i];
-			if (f != null) {
-				double percent = (100.0 * f.getWeight(month, year)) / total;
-				results.getItems().add(
-						new Label(f.getID() + " : " + "Weight = " + f.getWeight(month, year) + " Share = " + percent));
-			}
-		}
-	}
-
-	/**
-	 * Compute the annual report for each farm and output to existing listView
-	 * 
-	 * @param year    year of analysis
-	 * @param results ListView to write to
-	 */
-	private void annualReport(String year, ListView results) {
-		results.getItems().clear();
-		Farm[] table = farmTable.getTable();
-		int total = 0;
-		for (int i = 0; i < table.length; i++) {
-			Farm f = table[i];
-			if (f != null) {
-				total += f.getWeight(year);
-			}
-		}
-		for (int i = 0; i < table.length; i++) {
-			Farm f = table[i];
-			if (f != null) {
-				double percent = (100.0 * f.getWeight(year)) / total;
-				results.getItems()
-						.add(new Label(f.getID() + " : " + "Weight = " + f.getWeight(year) + " Share = " + percent));
-			}
-		}
-	}
-
-	/**
-	 * Compute the farm report by month for a specific farm and output to existing
-	 * listView
-	 * 
-	 * @param id      identification string for specific farm
-	 * @param year    year to analyze
-	 * @param results ListView to write to
-	 */
-	private void farmReport(String id, String year, ListView results) {
-		results.getItems().clear();
-		Farm f = farmTable.get(id);
-		if (year.length() == 0) {
-			results.getItems().add(new Label("Please input a year to filter by."));
-			return;
-		}
-		if (f == null) {
-			results.getItems().add(new Label("The farm id does not exist in the data."));
-			return;
-		}
-		for (int i = 1; i < 13; i++) {
-			if (f != null) {
-				double percent = (100.0 * f.getWeight(Integer.toString(i), year))
-						/ getTotalWeight(year, Integer.toString(i));
-				results.getItems().add(new Label("Month " + i + ": " + "Weight = "
-						+ f.getWeight(Integer.toString(i), year) + " Share = " + percent));
-			}
-		}
-	}
-
-	/**
-	 * Get total weight for all farms for a given month and year
-	 * 
-	 * @param year  year for a specific sum
-	 * @param month month for a specific sum
-	 * @return total weight of all farms for given month and year
-	 */
-	private int getTotalWeight(String year, String month) {
-		Farm[] table = farmTable.getTable();
-		int total = 0;
-		for (int i = 0; i < table.length; i++) {
-			Farm f = table[i];
-			if (f != null) {
-				total += f.getWeight(month, year);
-			}
-		}
-		return total;
 	}
 
 	/**
@@ -518,7 +395,7 @@ public class Main extends Application {
 		Button go1 = new Button("Go");
 		userInput1.getChildren().addAll(farmId, year1, go1);
 		ListView results1 = new ListView();
-		go1.setOnAction(e -> onFarmFilter(farmId.getText(), year1.getText(), results1));
+		go1.setOnAction(e -> farmTable.onFarmFilter(farmId.getText(), year1.getText(), results1));
 		byFarm.getChildren().addAll(userInput1, results1);
 
 		// Set the search by date results section
@@ -533,7 +410,10 @@ public class Main extends Application {
 		Button go2 = new Button("Go");
 		userInput2.getChildren().addAll(month, year2, go2);
 		ListView results2 = new ListView();
-		go2.setOnAction(e -> onMonthFilter(month.getText(), year2.getText(), results2));
+		go2.setOnAction(e -> {
+			farmTable.onMonthFilter(month.getText(), year2.getText(), results2);
+			results2.getItems().sort(c);
+		});
 		byMonth.getChildren().addAll(userInput2, results2);
 
 		// Set the filter of all farms section
@@ -547,7 +427,10 @@ public class Main extends Application {
 		year3.setFocusTraversable(false);
 		Button filter = new Button("Filter");
 		ListView allFarmsList = new ListView();
-		filter.setOnAction(e -> getFarms(month2.getText(), year3.getText(), allFarmsList));
+		filter.setOnAction(e -> {
+			farmTable.getFarms(month2.getText(), year3.getText(), allFarmsList);
+			allFarmsList.getItems().sort(c);
+		});
 		userInput3.getChildren().addAll(month2, year3, filter);
 		allFarms.getChildren().addAll(userInput3, allFarmsList);
 
@@ -564,104 +447,6 @@ public class Main extends Application {
 		vD.setHeight(500);
 		vD.setWidth(1200);
 		vD.show();
-	}
-
-	/**
-	 * Get each farm's total weight and share for a given month and year
-	 * 
-	 * @return listView containing total weight and shares for each farm
-	 */
-	private void getFarms(String month, String year, ListView lv) {
-		lv.getItems().clear();
-		Farm[] table = farmTable.getTable();
-		int total = 0;
-		for (int i = 0; i < table.length; i++) {
-			Farm f = table[i];
-			if (f != null) {
-				total += f.getWeight(month, year);
-			}
-		}
-		for (int i = 0; i < table.length; i++) {
-			Farm f = table[i];
-			if (f != null) {
-				if (f.getWeight(month, year) == 0) {
-					lv.getItems().add(new Label("Farm was not updated in this period of time"));
-				}
-				double percent = (100.0 * f.getWeight(month, year)) / total;
-				Label farm = new Label(f.getID() + " => " + "Weight: " + f.getWeight(month, year) + " ,Share: "
-						+ percent + "%" + ", Last Modfified: " + f.getDate());
-				lv.getItems().add(farm);
-			}
-		}
-	}
-
-	/**
-	 * Helper method to get all the farms and data associated with period of time
-	 * 
-	 * @param month   month you are looking for
-	 * @param year    year you are looking for
-	 * @param results listView object to update with the results
-	 */
-	private void onMonthFilter(String month, String year, ListView results) {
-		results.getItems().clear();
-		Farm[] table = farmTable.getTable();
-		if (month.length() == 0) {
-			results.getItems().add(new Label("Please input a month to filter by."));
-			return;
-		}
-		if (year.length() == 0) {
-			results.getItems().add(new Label("Please input a year to filter by."));
-			return;
-		}
-		for (int i = 0; i < table.length; i++) {
-			Farm f = table[i];
-			if (f != null) {
-				HBox hb = new HBox();
-				double[] a = f.getMinMaxAvg(month, year);
-				System.out.println(Arrays.toString(a));
-				int min = (int) a[0];
-				int max = (int) a[1];
-				double avg = a[2];
-				if (min != Integer.MAX_VALUE && max != Integer.MIN_VALUE && avg != Double.NaN) {
-					Label farm = new Label(f.getID() + ": ");
-					Label analysis = new Label("Min: " + min + ", Max: " + max + ", Avg: " + avg);
-					hb.getChildren().addAll(farm, analysis);
-					results.getItems().add(hb);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Helper method to get all data of a farm by month within a specific year
-	 * 
-	 * @param id      Farm that you are looking for
-	 * @param year    what year you want to observe monthly results in
-	 * @param results results listView object to update with the results
-	 */
-	private void onFarmFilter(String id, String year, ListView results) {
-		results.getItems().clear();
-		Farm f = farmTable.get(id);
-		if (year.length() == 0) {
-			results.getItems().add(new Label("Please input a year to filter by."));
-			return;
-		}
-		if (f == null) {
-			results.getItems().add(new Label("The farm id does not exist in the data."));
-			return;
-		}
-		for (int i = 1; i < 13; i++) {
-			double[] a = f.getMinMaxAvg(Integer.toString(i), year);
-			HBox hb = new HBox();
-			int min = (int) a[0];
-			int max = (int) a[1];
-			double avg = a[2];
-			if (min != Integer.MAX_VALUE && max != Integer.MIN_VALUE && avg != Double.NaN) {
-				Label analysis = new Label("Min: " + min + ", Max: " + max + ", Avg: " + avg);
-				hb.getChildren().addAll(new Label("Month " + i + ": "), analysis);
-				results.getItems().add(hb);
-			}
-		}
 	}
 
 	/**
@@ -688,13 +473,17 @@ public class Main extends Application {
 
 		Button bt = new Button("DONE"); // Done Button
 		bt.setOnAction(new EventHandler<ActionEvent>() {
+			/**
+			 * Handle the done button event
+			 * @param arg0 current action event
+			 */
 			@Override
 			public void handle(ActionEvent arg0) {
 				String ID = idPrompt.getText();
 				// GET MOST RECENT WEIGHT DIFFERNECE AND GO TO
 				Farm f = farmTable.get(ID);
 				if (f == null) {
-					Alert error = new Alert(AlertType.CONFIRMATION, "Farm ID does not exist in data.", ButtonType.OK);
+					Alert error = new Alert(AlertType.ERROR, "Farm ID does not exist in data.", ButtonType.OK);
 					error.show();
 					wD.close();
 					return;
@@ -757,6 +546,12 @@ public class Main extends Application {
 
 		Button bt = new Button("DONE"); // Done Button
 		bt.setOnAction(new EventHandler<ActionEvent>() {
+			Alert alert = new Alert(AlertType.ERROR, "", ButtonType.CANCEL); //Alert window
+			
+			/**
+			 * Handle the done button event
+			 * @param arg0 current action event
+			 */
 			@Override
 			public void handle(ActionEvent arg0) {
 				try {
@@ -771,10 +566,8 @@ public class Main extends Application {
 					// UPDATE FARM IN DATA STRUCTURE HERE
 					Farm f = farmTable.get(ID);
 					if (f == null) {
-						Alert error = new Alert(AlertType.CONFIRMATION, "Farm ID does not exist in data.",
-								ButtonType.OK);
-						error.show();
-						uD.close();
+						alert.setContentText("The given ID does not exist in the data.");
+						alert.show();
 						return;
 					}
 					f.update(oldDate.getText(), newDate.getText(), oldWeightVal, newWeightVal);
@@ -783,8 +576,8 @@ public class Main extends Application {
 					success.show();
 
 				} catch (IllegalArgumentException i) {
-					Alert error = new Alert(AlertType.ERROR, "Did not input valid date format.", ButtonType.CLOSE);
-					error.show();
+					alert.setContentText("Please follow format shown in text field for the date.");
+					alert.show();
 				} finally {
 					uD.close();
 				}
@@ -837,7 +630,13 @@ public class Main extends Application {
 		Button remove = new Button("Remove");
 		hb4.getChildren().addAll(add, remove);
 		hb4.setSpacing(5);
+		Alert alert = new Alert(AlertType.ERROR, "", ButtonType.CANCEL);
 		remove.setOnAction(new EventHandler<ActionEvent>() {
+
+			/**
+			 * Handle the done button event
+			 * @param arg0 current action event
+			 */
 			@Override
 			public void handle(ActionEvent arg0) {
 				try {
@@ -852,20 +651,22 @@ public class Main extends Application {
 							ButtonType.OK);
 					success.show();
 				} catch (IllegalArgumentException i) {
-					i.printStackTrace();
-					Alert error = new Alert(AlertType.ERROR, "Please follow format shown in text field.",
-							ButtonType.CLOSE);
-					error.show();
+					alert.setContentText("Please follow format shown in text field.");
+					alert.show();
 				} catch (NullPointerException n) {
-					Alert error = new Alert(AlertType.ERROR, "The given ID does not exist in the data.",
-							ButtonType.CLOSE);
-					error.show();
+					alert.setContentText("The given ID does not exist in the data.");
+					alert.show();
 				} finally {
 					nD.close();
 				}
 			}
 		});
 		add.setOnAction(new EventHandler<ActionEvent>() {
+			
+			/**
+			 * Handle the done button event
+			 * @param arg0 current action event
+			 */
 			@Override
 			public void handle(ActionEvent arg0) {
 				try {
@@ -887,13 +688,11 @@ public class Main extends Application {
 							ButtonType.OK);
 					success.show();
 				} catch (IllegalArgumentException i) {
-					Alert error = new Alert(AlertType.ERROR, "Please follow format shown in text field.",
-							ButtonType.CLOSE);
-					error.show();
+					alert.setContentText("Please follow format shown in text field.");
+					alert.show();
 				} catch (NullPointerException n) {
-					Alert error = new Alert(AlertType.ERROR, "The given ID does not exist in the data.",
-							ButtonType.CLOSE);
-					error.show();
+					alert.setContentText("The given ID does not exist in the data.");
+					alert.show();
 				} finally {
 
 					nD.close();
@@ -955,6 +754,13 @@ public class Main extends Application {
 		Button bt = new Button("DONE"); // Done Button
 
 		bt.setOnAction(new EventHandler<ActionEvent>() {
+			Alert alert = new Alert(AlertType.ERROR, "", ButtonType.OK, ButtonType.CANCEL); //Alert window
+			Optional<ButtonType> response = null; //Response of alert
+			
+			/**
+			 * Handle the done button event
+			 * @param arg0 current action event
+			 */
 			@Override
 			public void handle(ActionEvent arg0) {
 				try {
@@ -972,19 +778,31 @@ public class Main extends Application {
 							ButtonType.OK);
 					success.show();
 				} catch (IOException e) {
-					Alert a = new Alert(AlertType.ERROR, "Did not input valid file path.", ButtonType.CLOSE);
-					a.show();
+					alert.setContentText("Did not input valid file path. Press OK to try again.");
+					response = alert.showAndWait();
 				} catch (IndexOutOfBoundsException i) {
-					Alert a = new Alert(AlertType.ERROR, "Invalid Format. Lines: " + i.getMessage(), ButtonType.CLOSE);
-					a.show();
+					alert.setContentText("Invalid Format. Lines: " + i.getMessage() + ". Press OK to try again.");
+					response = alert.showAndWait();
 				} catch (NumberFormatException n) {
-					Alert a = new Alert(AlertType.ERROR, "Invalid Weight: " + n.getMessage(), ButtonType.CLOSE);
-					a.show();
+					alert.setContentText("Invalid Weight: " + n.getMessage() + ". Press OK to try again.");
+					response = alert.showAndWait();
 				} catch (IllegalArgumentException il) {
-					Alert a = new Alert(AlertType.ERROR, "Invalid Date: " + il.getMessage(), ButtonType.CLOSE);
-					a.show();
+					alert.setContentText("Invalid Date: " + il.getMessage() + ". Press OK to try again.");
+					response = alert.showAndWait();
 				} finally {
-					uF.close();
+					if (response != null) {
+						farmTable.clear();
+						if (!response.isPresent()) {
+
+						} else if (response.get() == ButtonType.OK) {
+							alert.close();
+							uF.close();
+							uploadFileWindow(primaryStage);
+						} else {
+							alert.close();
+							uF.close();
+						}
+					}
 				}
 			}
 		});

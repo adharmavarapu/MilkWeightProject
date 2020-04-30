@@ -1,3 +1,0 @@
-Farm 0 : Weight = 210093 Share = 35.624319622345894
-Farm 1 : Weight = 270643 Share = 45.89145157406748
-Farm 2 : Weight = 109010 Share = 18.48422880358663

@@ -1,17 +1,39 @@
 package application;
+/**
+ * Main.java created by Abhilash Dharmavarapu on Lenovo Thinkpad X1 Extreme in MilkWeightProject
+ *
+ * Author: Abhilash Dharmavarapu (dharmavarapu@wisc.edu)
+ * Date: 04/26/2020
+ *
+ * Course: CS400
+ * Semester: Spring 2020
+ * Lecture: 001
+ *
+ * IDE: Eclipse IDE for Java Developers
+ * Version: 2019-12 (4.14.0)
+ * Build id: 20191212-1212
+ *
+ * Device: DHARMAVARAPU_X1EXTREME
+ * OS: Windows 10 Pro
+ * Version: 1903
+ * OS Build: 18362.535
+ *
+ * List of Collaborators: Name, email.wisc.edu, lecture number
+ *
+ * Other Credits: describe other source (web sites or people)
+ *
+ * Known Bugs: describe known unresolved bugs here
+ */
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
+import java.util.Comparator;
+import java.util.IllegalFormatException;
 import java.util.List;
-import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,7 +41,6 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -31,7 +52,6 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -47,6 +67,36 @@ public class Main extends Application {
 	private List<String> args;
 	private static final String APP_TITLE = "Milk Weights";
 	private FarmTable farmTable;
+	private final Comparator c = new Comparator<Label>() {
+		@Override
+		public int compare(Label o1, Label o2) {
+			String s1 = o1.getText().substring(0, o1.getText().indexOf(':')).trim();
+			String s2 = o2.getText().substring(0, o2.getText().indexOf(':')).trim();
+			String numS1 = numericalString(s1);
+			String numS2 = numericalString(s2);
+			if (numS1.length() == 0) {
+				numS1 = "0";
+			}
+			if (numS2.length() == 0) {
+				numS2 = "0";
+			}
+			return Integer.parseInt(numS1) - Integer.parseInt(numS2);
+		}
+
+		public String numericalString(String string) {
+			String numS = "";
+			for (int i = 0; i < string.length() - 1; i++) {
+				String c = string.substring(i, i + 1);
+				try {
+					int number = Integer.parseInt(c);
+					numS += c;
+				} catch (Exception e) {
+					// pass
+				}
+			}
+			return numS;
+		}
+	};
 
 	/**
 	 * Method that runs show primary Stage
@@ -140,7 +190,6 @@ public class Main extends Application {
 		TextField month = new TextField();
 		month.setPromptText("mm");
 		hb2.getChildren().addAll(new Label("Month:  "), month);
-		hb2.setVisible(false);
 
 		HBox hb3 = new HBox(); // HBox for start date
 		TextField startDate = new TextField();
@@ -185,7 +234,7 @@ public class Main extends Application {
 			inputBox.getChildren().clear();
 			inputBox.getChildren().addAll(hb3, hb4, hb5);
 		});
-		
+
 		ListView results = new ListView();
 		results.getItems().add(new Label("Results: "));
 
@@ -194,14 +243,15 @@ public class Main extends Application {
 		vb.getChildren().addAll(options, inputBox, bt, results);
 		vb.setSpacing(25);
 		root.setCenter(vb);
-		
+
 		// Upload and compute outputs based off output selection
 		bt.setOnAction(e -> {
 			String f = filePath.getText();
 			// If farm report
 			if (rb1.isSelected()) {
 				try {
-					farmReport(farmID.getText(), year.getText(), f, results);
+					farmReport(farmID.getText(), year.getText(), results);
+					listViewtoFile(results, f);
 					Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
 							ButtonType.OK);
 					success.show();
@@ -215,7 +265,11 @@ public class Main extends Application {
 				// If annual report
 			} else if (rb2.isSelected()) {
 				try {
-					annualReport(year.getText(), f, results);
+					annualReport(year.getText(), results);
+					results.getItems().sort(c);
+					vb.getChildren().remove(results);
+					vb.getChildren().add(results);
+					listViewtoFile(results, f);
 					Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
 							ButtonType.OK);
 					success.show();
@@ -223,13 +277,18 @@ public class Main extends Application {
 					Alert error = new Alert(AlertType.ERROR, f + " not found", ButtonType.CLOSE);
 					error.show();
 				} catch (NumberFormatException n) {
+					n.printStackTrace();
 					Alert error = new Alert(AlertType.ERROR, "year format is incorrect", ButtonType.CLOSE);
 					error.show();
 				}
 				// If monthly report
 			} else if (rb3.isSelected()) {
 				try {
-					monthlyReport(year.getText(), month.getText(), f, results);
+					monthlyReport(year.getText(), month.getText(), results);
+					results.getItems().sort(c);
+					vb.getChildren().remove(results);
+					vb.getChildren().add(results);
+					listViewtoFile(results, f);
 					Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
 							ButtonType.OK);
 					success.show();
@@ -243,7 +302,11 @@ public class Main extends Application {
 				// If date range report
 			} else if (rb4.isSelected()) {
 				try {
-					dateRangeReport(startDate.getText(), endDate.getText(), f, results);
+					dateRangeReport(startDate.getText(), endDate.getText(), results);
+					results.getItems().sort(c);
+					vb.getChildren().remove(results);
+					vb.getChildren().add(results);
+					listViewtoFile(results, f);
 					Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
 							ButtonType.OK);
 					success.show();
@@ -268,22 +331,36 @@ public class Main extends Application {
 	}
 
 	/**
-	 * Compute the date range analysis for each farm and output to existing file and listView
+	 * Converts list view to file
 	 * 
-	 * @param start start date of range
-	 * @param end   end date of range
-	 * @param file  file to output to
-	 * @param results listView to write to
-	 * @throws IOException thrown if file does not exist
+	 * @param results listView source
+	 * @param f       file destination
+	 * @throws IOException if file is not found
 	 */
-	private void dateRangeReport(String start, String end, String file, ListView results) throws IOException {
-		results.getItems().clear();
-		results.getItems().add(new Label("DATE RANGE REPORT: "));
-		File check = new File(file);
+	private void listViewtoFile(ListView results, String f) throws IOException {
+		File check = new File(f);
 		if (!check.exists() || check.isDirectory()) {
 			throw new IOException();
 		}
 		FileWriter writer = new FileWriter(check);
+		for (Object l : results.getItems()) {
+			writer.write(((Label) l).getText() + "\n");
+		}
+		writer.flush();
+		writer.close();
+	}
+
+	/**
+	 * Compute the date range analysis for each farm and output to existing listView
+	 * 
+	 * @param start   start date of range
+	 * @param end     end date of range
+	 * @param file    file to output to
+	 * @param results listView to write to
+	 */
+	private void dateRangeReport(String start, String end, ListView results) {
+		results.getItems().clear();
+		// results.getItems().add(new Label("DATE RANGE REPORT: "));
 		Farm[] table = farmTable.getTable();
 		int total = 0;
 		// Get Total Weight for calculating share
@@ -298,33 +375,21 @@ public class Main extends Application {
 			Farm f = table[i];
 			if (f != null) {
 				double percent = (100.0 * f.getWeightRange(start, end)) / total;
-				writer.write(
-						f.getID() + " : " + "Weight = " + f.getWeightRange(start, end) + " Share = " + percent + "\n");
 				results.getItems().add(new Label(
 						f.getID() + " : " + "Weight = " + f.getWeightRange(start, end) + " Share = " + percent));
 			}
 		}
-		writer.flush();
-		writer.close();
 	}
 
 	/**
-	 * Compute the monthly report for each farm and output to existing file and listView
+	 * Compute the monthly report for each farm and output to existing listView
 	 * 
-	 * @param year  year to analyze
-	 * @param month month to analyze
-	 * @param file  file to output to
+	 * @param year    year to analyze
+	 * @param month   month to analyze
 	 * @param results listView to write to
-	 * @throws IOException thrown if file does not exist
 	 */
-	private void monthlyReport(String year, String month, String file, ListView results) throws IOException {
+	private void monthlyReport(String year, String month, ListView results) {
 		results.getItems().clear();
-		results.getItems().add(new Label("MONTHLY REPORT: "));
-		File check = new File(file);
-		if (!check.exists() || check.isDirectory()) {
-			throw new IOException();
-		}
-		FileWriter writer = new FileWriter(check);
 		Farm[] table = farmTable.getTable();
 		int total = 0;
 		for (int i = 0; i < table.length; i++) {
@@ -337,31 +402,20 @@ public class Main extends Application {
 			Farm f = table[i];
 			if (f != null) {
 				double percent = (100.0 * f.getWeight(month, year)) / total;
-				writer.write(f.getID() + " : " + "Weight = " + f.getWeight(month, year) + " Share = " + percent + "\n");
 				results.getItems().add(
 						new Label(f.getID() + " : " + "Weight = " + f.getWeight(month, year) + " Share = " + percent));
 			}
 		}
-		writer.flush();
-		writer.close();
 	}
 
 	/**
-	 * Compute the annual report for each farm and output to existing file and listView
+	 * Compute the annual report for each farm and output to existing listView
 	 * 
-	 * @param year year of analysis
-	 * @param file file to output to
+	 * @param year    year of analysis
 	 * @param results ListView to write to
-	 * @throws IOException thrown if file does not exist
 	 */
-	private void annualReport(String year, String file, ListView results) throws IOException {
+	private void annualReport(String year, ListView results) {
 		results.getItems().clear();
-		results.getItems().add(new Label("ANNUAL REPORT: "));
-		File check = new File(file);
-		if (!check.exists() || check.isDirectory()) {
-			throw new IOException();
-		}
-		FileWriter writer = new FileWriter(check);
 		Farm[] table = farmTable.getTable();
 		int total = 0;
 		for (int i = 0; i < table.length; i++) {
@@ -374,45 +428,39 @@ public class Main extends Application {
 			Farm f = table[i];
 			if (f != null) {
 				double percent = (100.0 * f.getWeight(year)) / total;
-				writer.write(f.getID() + " : " + "Weight = " + f.getWeight(year) + " Share = " + percent + "\n");
-				results.getItems().add(
-						new Label(f.getID() + " : " + "Weight = " + f.getWeight(year) + " Share = " + percent + "\n"));
+				results.getItems()
+						.add(new Label(f.getID() + " : " + "Weight = " + f.getWeight(year) + " Share = " + percent));
 			}
 		}
-		writer.flush();
-		writer.close();
 	}
 
 	/**
-	 * Compute the farm report by month for a specific farm and output to existing file and listView
+	 * Compute the farm report by month for a specific farm and output to existing
+	 * listView
 	 * 
-	 * @param id   identification string for specific farm
-	 * @param year year to analyze
-	 * @param file file to output to
+	 * @param id      identification string for specific farm
+	 * @param year    year to analyze
 	 * @param results ListView to write to
-	 * @throws IOException thrown if file does not exist
 	 */
-	private void farmReport(String id, String year, String file, ListView results) throws IOException {
+	private void farmReport(String id, String year, ListView results) {
 		results.getItems().clear();
-		results.getItems().add(new Label("FARM REPORT: "));
-		File check = new File(file);
-		if (!check.exists() || check.isDirectory()) {
-			throw new IOException();
+		Farm f = farmTable.get(id);
+		if (year.length() == 0) {
+			results.getItems().add(new Label("Please input a year to filter by."));
+			return;
 		}
-		FileWriter writer = new FileWriter(check);
+		if (f == null) {
+			results.getItems().add(new Label("The farm id does not exist in the data."));
+			return;
+		}
 		for (int i = 1; i < 13; i++) {
-			Farm f = farmTable.get(id);
 			if (f != null) {
 				double percent = (100.0 * f.getWeight(Integer.toString(i), year))
 						/ getTotalWeight(year, Integer.toString(i));
-				writer.write("Month " + i + ": " + "Weight = " + f.getWeight(Integer.toString(i), year) + " Share = "
-						+ percent + "\n");
 				results.getItems().add(new Label("Month " + i + ": " + "Weight = "
-						+ f.getWeight(Integer.toString(i), year) + " Share = " + percent + "\n"));
+						+ f.getWeight(Integer.toString(i), year) + " Share = " + percent));
 			}
 		}
-		writer.flush();
-		writer.close();
 	}
 
 	/**
@@ -645,6 +693,12 @@ public class Main extends Application {
 				String ID = idPrompt.getText();
 				// GET MOST RECENT WEIGHT DIFFERNECE AND GO TO
 				Farm f = farmTable.get(ID);
+				if (f == null) {
+					Alert error = new Alert(AlertType.CONFIRMATION, "Farm ID does not exist in data.", ButtonType.OK);
+					error.show();
+					wD.close();
+					return;
+				}
 				// NEW WINDOW DISPLAYING DIFFERENCE
 				Alert success = new Alert(AlertType.CONFIRMATION, "Most recent growth/decay is: " + f.getDifference(),
 						ButtonType.OK);
@@ -716,6 +770,13 @@ public class Main extends Application {
 					}
 					// UPDATE FARM IN DATA STRUCTURE HERE
 					Farm f = farmTable.get(ID);
+					if (f == null) {
+						Alert error = new Alert(AlertType.CONFIRMATION, "Farm ID does not exist in data.",
+								ButtonType.OK);
+						error.show();
+						uD.close();
+						return;
+					}
 					f.update(oldDate.getText(), newDate.getText(), oldWeightVal, newWeightVal);
 					Alert success = new Alert(AlertType.CONFIRMATION, "Data has been successfully updated",
 							ButtonType.OK);
@@ -782,16 +843,7 @@ public class Main extends Application {
 				try {
 					String ID = farmID.getText();
 					String[] dateArray = date.getText().split("-");
-					if (dateArray.length != 3) {
-						throw new IllegalArgumentException();
-					} else {
-						if (dateArray[0].length() != 4 && dateArray[1].length() != 2 && dateArray[2].length() != 2) {
-							throw new IllegalArgumentException();
-						}
-						if (Integer.parseInt(dateArray[1]) > 12 || Integer.parseInt(dateArray[2]) > 31) {
-							throw new IllegalArgumentException();
-						}
-					}
+					checkDate(dateArray);
 					if (farmTable.get(ID) == null) {
 						throw new NullPointerException();
 					}
@@ -863,6 +915,25 @@ public class Main extends Application {
 	}
 
 	/**
+	 * Checks if the date is valid or not
+	 * 
+	 * @param dateArray array in date format to check
+	 * @throws IllegalArgumentException thrown if the date format is not valid
+	 */
+	private void checkDate(String[] dateArray) throws IllegalArgumentException {
+		if (dateArray.length != 3) {
+			throw new IllegalArgumentException(Arrays.toString(dateArray));
+		} else {
+			if (dateArray[0].length() != 4 && dateArray[1].length() != 2 && dateArray[2].length() != 2) {
+				throw new IllegalArgumentException(Arrays.toString(dateArray));
+			}
+			if (Integer.parseInt(dateArray[1]) > 12 || Integer.parseInt(dateArray[2]) > 31) {
+				throw new IllegalArgumentException(Arrays.toString(dateArray));
+			}
+		}
+	}
+
+	/**
 	 * Method to create a new window for initializing data with file(CSV) increase
 	 * or decrease)
 	 * 
@@ -890,14 +961,27 @@ public class Main extends Application {
 					List<String[]> data = fileRead(fileInput.getText());
 					data.remove(0);
 					for (String[] d : data) {
-						farmTable.insert(d[1], new Farm(d[1], Integer.parseInt(d[2]), d[0]));
+						checkDate(d[0].split("-"));
+						try {
+							farmTable.insert(d[1], new Farm(d[1], Integer.parseInt(d[2]), d[0]));
+						} catch (NumberFormatException n) {
+							throw new NumberFormatException(d[2]);
+						}
 					}
 					Alert success = new Alert(AlertType.CONFIRMATION, "Data has been successfully uploaded",
 							ButtonType.OK);
 					success.show();
-				} catch (Exception e) {
-					e.printStackTrace();
+				} catch (IOException e) {
 					Alert a = new Alert(AlertType.ERROR, "Did not input valid file path.", ButtonType.CLOSE);
+					a.show();
+				} catch (IndexOutOfBoundsException i) {
+					Alert a = new Alert(AlertType.ERROR, "Invalid Format. Lines: " + i.getMessage(), ButtonType.CLOSE);
+					a.show();
+				} catch (IllegalFormatException il) {
+					Alert a = new Alert(AlertType.ERROR, "Invalid Date: " + il.getMessage(), ButtonType.CLOSE);
+					a.show();
+				} catch (NumberFormatException n) {
+					Alert a = new Alert(AlertType.ERROR, "Invalid Weight: " + n.getMessage(), ButtonType.CLOSE);
 					a.show();
 				} finally {
 					uF.close();
@@ -918,16 +1002,41 @@ public class Main extends Application {
 		uF.show();
 	}
 
-	private static List<String[]> fileRead(String f) {
+	/**
+	 * Read a file filter to valid lines
+	 * 
+	 * @param f file to read
+	 * @return list of data
+	 * @throws IOException              if file is not found
+	 * @throws IllegalArgumentException thrown when one or more lines have incorrect
+	 *                                  format
+	 */
+	private static List<String[]> fileRead(String f) throws IOException, IllegalArgumentException {
 		try (Stream<String> stream = Files.lines(Paths.get(f))) {
 			List<String[]> data = stream.filter(u -> u.split(",").length == 3).map(m -> m.split(","))
 					.collect(Collectors.toList());
+			// long lines = stream.count();
+			List<String> error = getFileErrors(f);
+			if (error.size() > 0) {
+				throw new IndexOutOfBoundsException(error.toString());
+			}
 			return data;
-		} catch (Exception e) {
-
-		} finally {
+		} catch (IOException e) {
+			throw new IOException();
 		}
-		return null;
+	}
+
+	/**
+	 * Gets all the obvious format error lines in file
+	 * @param f file to check for errors
+	 * @return a list of lines with errors
+	 * @throws IOException thrown if the file is not found
+	 */
+	private static List<String> getFileErrors(String f) throws IOException {
+		Stream<String> errorStream = Files.lines(Paths.get(f));
+		List<String> data = errorStream.filter(u -> u.split(",").length != 3).collect(Collectors.toList());
+		errorStream.close();
+		return data;
 	}
 
 	/**

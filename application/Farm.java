@@ -120,6 +120,7 @@ public class Farm {
 		int min = Integer.MAX_VALUE;
 		for (FarmUpdate u : updateList) {
 			String[] currDate = u.currDate.split("-");
+			//If year = currDate year and month = currDate month
 			if (Integer.parseInt(currDate[0]) == Integer.parseInt(year)
 					&& Integer.parseInt(currDate[1]) == Integer.parseInt(month)) {
 				sum += u.currWeight;
@@ -147,6 +148,7 @@ public class Farm {
 		for (int i = updateList.size() - 1; i >= 0; i--) {
 			FarmUpdate u = updateList.get(i);
 			String[] currDate = u.currDate.split("-");
+			//If year = currDate year and month = currDate month
 			if (Integer.parseInt(currDate[0]) == Integer.parseInt(year)
 					&& Integer.parseInt(currDate[1]) == Integer.parseInt(month)) {
 				weightTotal += u.currWeight;
@@ -166,6 +168,7 @@ public class Farm {
 		for (int i = updateList.size() - 1; i >= 0; i--) {
 			FarmUpdate u = updateList.get(i);
 			String[] currDate = u.currDate.split("-");
+			//If year = currDate year
 			if (Integer.parseInt(currDate[0]) == Integer.parseInt(year)) {
 				weightTotal += u.currWeight;
 			}
@@ -190,23 +193,21 @@ public class Farm {
 			FarmUpdate u = updateList.get(i);
 			String[] currDate = u.currDate.split("-");
 			String[] prevDate = u.prevDate.split("-");
-			System.out.println(" " + Integer.parseInt(endDate[0]) + " " + Integer.parseInt(endDate[1]) + " "
-					+ Integer.parseInt(endDate[2]));
-			System.out.println(" " + Integer.parseInt(currDate[0]) + " " + Integer.parseInt(currDate[1]) + " "
-					+ Integer.parseInt(currDate[2]));
+			//Check if currDate == startDate
 			if (Integer.parseInt(currDate[0]) == Integer.parseInt(startDate[0])
 					&& Integer.parseInt(currDate[1]) == Integer.parseInt(startDate[1])
 					&& Integer.parseInt(currDate[2]) == Integer.parseInt(startDate[2])) {
+				//Assign first index for interval
 				startIndex = i;
 			}
+			//Check if currDate == endDate
 			if (Integer.parseInt(currDate[0]) == Integer.parseInt(endDate[0])
 					&& Integer.parseInt(currDate[1]) == Integer.parseInt(endDate[1])
 					&& Integer.parseInt(currDate[2]) == Integer.parseInt(endDate[2])) {
-				System.out.println("try");
+				//Assign end index for interval
 				endIndex = i;
 			}
 		}
-		System.out.print("Start: " + startIndex + "End: " + endIndex);
 		for (int i = startIndex; i <= endIndex; i++) {
 			weightOverRange += updateList.get(i).currWeight;
 		}
@@ -228,17 +229,21 @@ public class Farm {
 			FarmUpdate u = updateList.get(i);
 			String[] currDate = u.currDate.split("-");
 			String[] prevDate = u.prevDate.split("-");
+			//Check if currDate == date
 			if (Integer.parseInt(currDate[0]) == Integer.parseInt(year)
 					&& Integer.parseInt(currDate[1]) == Integer.parseInt(month)
 					&& Integer.parseInt(currDate[2]) == Integer.parseInt(day)) {
 				updateList.remove(u);
 			}
+			//Check if prevDate == date
 			if (!prevDate[0].equals("Start") && Integer.parseInt(prevDate[0]) == Integer.parseInt(year)
 					&& Integer.parseInt(prevDate[1]) == Integer.parseInt(month)
 					&& Integer.parseInt(prevDate[2]) == Integer.parseInt(day)) {
+				//Update when removing first data point
 				if (i == 0) {
 					u.prevDate = "START";
 					u.prevWeight = 0;
+				//When removing any other data point
 				} else {
 					u.prevDate = updateList.get(i - 1).currDate;
 					u.prevWeight = updateList.get(i - 1).currWeight;
@@ -268,10 +273,11 @@ public class Farm {
 			String currYear = currDate[0];
 			String currMonth = currDate[1];
 			String currDay = currDate[2];
-
+			//Check if prevDate == oldDate
 			if (Integer.parseInt(prevDate[0]) == Integer.parseInt(prevYear)
 					&& Integer.parseInt(prevDate[1]) == Integer.parseInt(prevMonth)
 					&& Integer.parseInt(prevDate[2]) == Integer.parseInt(prevDay)) {
+				//Check if currDate == newDate
 				if (Integer.parseInt(currDate[0]) == Integer.parseInt(currYear)
 						&& Integer.parseInt(currDate[1]) == Integer.parseInt(currMonth)
 						&& Integer.parseInt(currDate[2]) == Integer.parseInt(currDay)) {

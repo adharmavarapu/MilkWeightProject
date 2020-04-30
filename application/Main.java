@@ -977,11 +977,11 @@ public class Main extends Application {
 				} catch (IndexOutOfBoundsException i) {
 					Alert a = new Alert(AlertType.ERROR, "Invalid Format. Lines: " + i.getMessage(), ButtonType.CLOSE);
 					a.show();
-				} catch (IllegalFormatException il) {
-					Alert a = new Alert(AlertType.ERROR, "Invalid Date: " + il.getMessage(), ButtonType.CLOSE);
-					a.show();
 				} catch (NumberFormatException n) {
 					Alert a = new Alert(AlertType.ERROR, "Invalid Weight: " + n.getMessage(), ButtonType.CLOSE);
+					a.show();
+				} catch (IllegalArgumentException il) {
+					Alert a = new Alert(AlertType.ERROR, "Invalid Date: " + il.getMessage(), ButtonType.CLOSE);
 					a.show();
 				} finally {
 					uF.close();
@@ -1028,6 +1028,7 @@ public class Main extends Application {
 
 	/**
 	 * Gets all the obvious format error lines in file
+	 * 
 	 * @param f file to check for errors
 	 * @return a list of lines with errors
 	 * @throws IOException thrown if the file is not found

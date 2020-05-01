@@ -26,8 +26,9 @@ package application;
  */
 
 /**
- * Interface for creating a hashtable
- * @author Abhilash Dharmavarapu, 
+ * Interface for creating a hashtable, ensures better group collaboration
+ * 
+ * @author Abhilash Dharmavarapu
  *
  * @param <K> Key type
  * @param <V> Value type
@@ -35,24 +36,24 @@ package application;
 
 public interface HashTableADT<K extends Comparable<K>, V> {
 	// Add the key,value pair to the data structure and increase the number of keys.
-		// If key is already in data structure, replace value with new value
-		void insert(K key, V value);
+	// If key is already in data structure, replace value with new value
+	void insert(K key, V value);
 
-		// If key is found,
-		// remove the key,value pair from the data structure
-		// decrease number of keys.
-		// return true
-		// If key is not found, return false
-		boolean remove(K key);
+	// If key is found,
+	// remove the key,value pair from the data structure
+	// decrease number of keys.
+	// return true
+	// If key is not found, return false
+	boolean remove(K key);
 
-		// Returns the value associated with the specified key
-		// Does not remove key or decrease number of keys
-		//
-		V get(K key);
+	// Returns the value associated with the specified key
+	// Does not remove key or decrease number of keys
+	//
+	V get(K key);
 
-		// Returns the number of key,value pairs in the data structure
-		int numKeys();
-		
+	// Returns the number of key,value pairs in the data structure
+	int numKeys();
+
 	// Returns the load factor threshold that was
 	// passed into the constructor when creating
 	// the instance of the HashTable.
@@ -76,9 +77,8 @@ public interface HashTableADT<K extends Comparable<K>, V> {
 	//
 	// Once increased, the capacity never decreases
 	public int getCapacity();
-	
-	//Sets all elements in table to null
-	public void clear();
 
+	// Sets all elements in table to null
+	public void clear();
 
 }

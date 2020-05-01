@@ -31,11 +31,19 @@ import javafx.scene.layout.HBox;
 /**
  * Hash Table to store farm data
  * 
- * @author Abhilash Dharmavarapu,
+ * @author Abhilash Dharmavarapu, Shreyam Taneja, Nishit Saraf
  *
  */
 public class FarmTable implements HashTableADT<String, Farm> {
 
+	/**
+	 * Hash Node inner class object to store the chained buckets and key value pairs
+	 * 
+	 * @author Shreyam Taneja
+	 *
+	 * @param <String> Type for key
+	 * @param <Farm> Type for value
+	 */
 	private class HashNode<String, Farm> {
 		String key;// To store the key.
 		Farm value;// To Store the Farmalue.
@@ -58,8 +66,8 @@ public class FarmTable implements HashTableADT<String, Farm> {
 															// chains
 	private int numBuckets;// Current capacity of array list
 
-	private double loadFactorThreshold;
-	private int size;
+	private double loadFactorThreshold; // loadFactorThreshold necessary to resizing
+	private int size; // Number of keys added to hashtable
 
 	public FarmTable() {
 		this(10, .75);
@@ -92,10 +100,12 @@ public class FarmTable implements HashTableADT<String, Farm> {
 	 * @return table of farm objects
 	 */
 	private Farm[] getTable() {
+		// Create new table
 		Farm[] t = new Farm[size];
 		int index = 0;
 		for (int i = 0; i < bucketArray.size(); i++) {
 			HashNode bucket = bucketArray.get(i);
+			// Get non-null buckets and traverse through buckets
 			while (bucket != null) {
 				t[index] = (Farm) bucket.value;
 				bucket = bucket.next;
@@ -239,7 +249,7 @@ public class FarmTable implements HashTableADT<String, Farm> {
 		results.getItems().clear();
 		Farm[] table = this.getTable();
 		int total = 0;
-		// Get Total Weight for calculating share
+		// Get Total Weight for calculating share for date range
 		for (int i = 0; i < table.length; i++) {
 			Farm f = table[i];
 			if (f != null) {
@@ -250,7 +260,7 @@ public class FarmTable implements HashTableADT<String, Farm> {
 		for (int i = 0; i < table.length; i++) {
 			Farm f = table[i];
 			if (f != null) {
-				double percent = (100.0 * f.getWeightRange(start, end)) / total;
+				double percent = Math.round((100.0 * f.getWeightRange(start, end) * 100) / total) / 100.0;
 				results.getItems().add(new Label(
 						f.getID() + " : " + "Weight = " + f.getWeightRange(start, end) + " Share = " + percent + "%"));
 			}
@@ -267,17 +277,12 @@ public class FarmTable implements HashTableADT<String, Farm> {
 	public void monthlyReport(String year, String month, ListView results) {
 		results.getItems().clear();
 		Farm[] table = this.getTable();
-		int total = 0;
+		int total = this.getTotalWeight(month, year);
+		// Use the total to compute share and report weight of each farm
 		for (int i = 0; i < table.length; i++) {
 			Farm f = table[i];
 			if (f != null) {
-				total += f.getWeight(month, year);
-			}
-		}
-		for (int i = 0; i < table.length; i++) {
-			Farm f = table[i];
-			if (f != null) {
-				double percent = (100.0 * f.getWeight(month, year)) / total;
+				double percent = Math.round((100.0 * f.getWeight(month, year) * 100) / total) / 100.0;
 				results.getItems().add(new Label(
 						f.getID() + " : " + "Weight = " + f.getWeight(month, year) + " Share = " + percent + "%"));
 			}
@@ -295,18 +300,14 @@ public class FarmTable implements HashTableADT<String, Farm> {
 	public void farmReport(String id, String year, ListView results) {
 		results.getItems().clear();
 		Farm f = this.get(id);
-		if (year.length() == 0) {
-			results.getItems().add(new Label("Please input a year to filter by."));
-			return;
-		}
 		if (f == null) {
-			results.getItems().add(new Label("The farm id does not exist in the data."));
+			results.getItems().add(new Label(id + ": Does not exist"));
 			return;
 		}
 		for (int i = 1; i < 13; i++) {
 			if (f != null) {
-				double percent = (100.0 * f.getWeight(Integer.toString(i), year))
-						/ getTotalWeight(year, Integer.toString(i));
+				int total = getTotalWeight(year, Integer.toString(i));
+				double percent = Math.round((100.0 * f.getWeight(Integer.toString(i), year) * 100) / total) / 100.0;
 				results.getItems().add(new Label("Month " + i + ": " + "Weight = "
 						+ f.getWeight(Integer.toString(i), year) + " Share = " + percent + "%"));
 			}
@@ -323,16 +324,18 @@ public class FarmTable implements HashTableADT<String, Farm> {
 		results.getItems().clear();
 		Farm[] table = this.getTable();
 		int total = 0;
+		// Calculate total weight of all farms by the year
 		for (int i = 0; i < table.length; i++) {
 			Farm f = table[i];
 			if (f != null) {
 				total += f.getWeight(year);
 			}
 		}
+		// Use the total weight to compute share and also display weight of farm
 		for (int i = 0; i < table.length; i++) {
 			Farm f = table[i];
 			if (f != null) {
-				double percent = (100.0 * f.getWeight(year)) / total;
+				double percent = Math.round((100.0 * f.getWeight(year) * 100) / total) / 100.0;
 				results.getItems().add(
 						new Label(f.getID() + " : " + "Weight = " + f.getWeight(year) + " Share = " + percent + "%"));
 			}
@@ -346,7 +349,7 @@ public class FarmTable implements HashTableADT<String, Farm> {
 	 * @param month month for a specific sum
 	 * @return total weight of all farms for given month and year
 	 */
-	public int getTotalWeight(String year, String month) {
+	public int getTotalWeight(String month, String year) {
 		Farm[] table = this.getTable();
 		int total = 0;
 		for (int i = 0; i < table.length; i++) {
@@ -368,25 +371,27 @@ public class FarmTable implements HashTableADT<String, Farm> {
 	public void onFarmFilter(String id, String year, ListView results) {
 		results.getItems().clear();
 		Farm f = this.get(id);
-		if (year.length() == 0) {
-			results.getItems().add(new Label("Please input a year to filter by."));
-			return;
-		}
 		if (f == null) {
-			results.getItems().add(new Label("The farm id does not exist in the data."));
+			results.getItems().add(new Label(id + ": Does not exist"));
 			return;
 		}
 		for (int i = 1; i < 13; i++) {
+			// Gets Min Max and Avg in one return type
 			double[] a = f.getMinMaxAvg(Integer.toString(i), year);
 			HBox hb = new HBox();
 			int min = (int) a[0];
 			int max = (int) a[1];
 			double avg = a[2];
-			if (min != Integer.MAX_VALUE && max != Integer.MIN_VALUE && avg != Double.NaN) {
-				Label analysis = new Label("Min: " + min + ", Max: " + max + ", Avg: " + avg);
-				hb.getChildren().addAll(new Label("Month " + i + ": "), analysis);
-				results.getItems().add(hb);
+			// Assign sentinel values to non-existing data
+			if (min == Integer.MAX_VALUE) {
+				min = 0;
 			}
+			if (max == Integer.MIN_VALUE) {
+				max = 0;
+			}
+			Label analysis = new Label("Min: " + min + ", Max: " + max + ", Avg: " + avg);
+			hb.getChildren().addAll(new Label("Month " + i + ": "), analysis);
+			results.getItems().add(hb);
 		}
 	}
 
@@ -400,56 +405,22 @@ public class FarmTable implements HashTableADT<String, Farm> {
 	public void onMonthFilter(String month, String year, ListView results) {
 		results.getItems().clear();
 		Farm[] table = this.getTable();
-		if (month.length() == 0) {
-			results.getItems().add(new Label("Please input a month to filter by."));
-			return;
-		}
-		if (year.length() == 0) {
-			results.getItems().add(new Label("Please input a year to filter by."));
-			return;
-		}
 		for (int i = 0; i < table.length; i++) {
 			Farm f = table[i];
 			if (f != null) {
-				HBox hb = new HBox();
 				double[] a = f.getMinMaxAvg(month, year);
 				int min = (int) a[0];
 				int max = (int) a[1];
-				if(min == Integer.MAX_VALUE) {
+				// Assign sentinel values to non-existing data
+				if (min == Integer.MAX_VALUE) {
 					min = 0;
 				}
-				if(max == Integer.MIN_VALUE) {
+				if (max == Integer.MIN_VALUE) {
 					max = 0;
 				}
 				double avg = a[2];
-				Label analysis = new Label(f.getID() + ": "  + "Min: " + min + ", Max: " + max + ", Avg: " + avg);
+				Label analysis = new Label(f.getID() + ": " + "Min: " + min + ", Max: " + max + ", Avg: " + avg);
 				results.getItems().add(analysis);
-			}
-		}
-	}
-
-	/**
-	 * Get each farm's total weight and share for a given month and year
-	 * 
-	 * @return listView containing total weight and shares for each farm
-	 */
-	public void getFarms(String month, String year, ListView lv) {
-		lv.getItems().clear();
-		Farm[] table = this.getTable();
-		int total = 0;
-		for (int i = 0; i < table.length; i++) {
-			Farm f = table[i];
-			if (f != null) {
-				total += f.getWeight(month, year);
-			}
-		}
-		for (int i = 0; i < table.length; i++) {
-			Farm f = table[i];
-			if (f != null) {
-				double percent = (100.0 * f.getWeight(month, year)) / total;
-				Label farm = new Label(f.getID() + " => " + "Weight: " + f.getWeight(month, year) + " ,Share: "
-						+ percent + "%" + ", Last Modified: " + f.getDate());
-				lv.getItems().add(farm);
 			}
 		}
 	}

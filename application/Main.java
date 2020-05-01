@@ -19,6 +19,7 @@ package application;
  * OS Build: 18362.535
  *
  * List of Collaborators: Name, email.wisc.edu, lecture number
+ * Atharva Kudkilwar, kudkilwar@wisc.edu, lecture 002
  *
  * Other Credits: describe other source (web sites or people)
  *
@@ -65,10 +66,10 @@ import javafx.stage.Stage;
  *
  */
 public class Main extends Application {
-	private List<String> args; //System arguments
-	private static final String APP_TITLE = "Milk Weights"; //Title of the main window
-	private FarmTable farmTable; //Farm table to store data
-	private final Comparator c = new Comparator<Label>() { //Comparator used to sort the lists
+	private List<String> args; // System arguments
+	private static final String APP_TITLE = "Milk Weights"; // Title of the main window
+	private FarmTable farmTable; // Farm table to store data
+	private final Comparator c = new Comparator<Label>() { // Comparator used to sort the lists
 		/**
 		 * Compares the beginning of each label(id)
 		 * 
@@ -223,9 +224,9 @@ public class Main extends Application {
 
 		HBox buttonCheckBox = new HBox();
 		Button bt = new Button("Output"); // Output Button
-		
-		//Check if you output to file
-		CheckBox output = new CheckBox("Output to file"); 
+
+		// Check if you output to file
+		CheckBox output = new CheckBox("Output to file");
 		buttonCheckBox.getChildren().addAll(bt, output);
 		buttonCheckBox.setSpacing(10);
 		buttonCheckBox.setVisible(false);
@@ -252,7 +253,7 @@ public class Main extends Application {
 			inputBox.getChildren().addAll(hb3, hb4, hb5);
 		});
 
-		//Data list for output
+		// Data list for output
 		ListView results = new ListView();
 
 		// Vertical box containing options, input and upload button
@@ -264,19 +265,19 @@ public class Main extends Application {
 		// Upload and compute outputs based off output selection
 		bt.setOnAction(e -> {
 			Alert alert = new Alert(AlertType.ERROR, "", ButtonType.CANCEL);
-			String f = filePath.getText();
+			String path = filePath.getText();
 			// If farm report
 			if (rb1.isSelected()) {
 				try {
 					farmTable.farmReport(farmID.getText(), year.getText(), results);
-					if(output.isSelected()) {
-						listViewtoFile(results, f);
-						Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
+					if (output.isSelected()) {
+						listViewtoFile(results, path);
+						Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + path,
 								ButtonType.OK);
 						success.show();
 					}
 				} catch (IOException e1) {
-					alert.setContentText(f + " not found");
+					alert.setContentText(path + " not found");
 					alert.show();
 				} catch (NumberFormatException n) {
 					alert.setContentText("year format is incorrect");
@@ -289,14 +290,14 @@ public class Main extends Application {
 					results.getItems().sort(c);
 					vb.getChildren().remove(results);
 					vb.getChildren().add(results);
-					if(output.isSelected()) {
-						listViewtoFile(results, f);
-						Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
+					if (output.isSelected()) {
+						listViewtoFile(results, path);
+						Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + path,
 								ButtonType.OK);
 						success.show();
 					}
 				} catch (IOException e1) {
-					alert.setContentText(f + " not found");
+					alert.setContentText(path + " not found");
 					alert.show();
 				} catch (NumberFormatException n) {
 					alert.setContentText("year format is incorrect");
@@ -309,14 +310,14 @@ public class Main extends Application {
 					results.getItems().sort(c);
 					vb.getChildren().remove(results);
 					vb.getChildren().add(results);
-					if(output.isSelected()) {
-						listViewtoFile(results, f);
-						Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
+					if (output.isSelected()) {
+						listViewtoFile(results, path);
+						Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + path,
 								ButtonType.OK);
 						success.show();
 					}
 				} catch (IOException e1) {
-					alert.setContentText(f + " not found");
+					alert.setContentText(path + " not found");
 					alert.show();
 				} catch (NumberFormatException n) {
 					alert.setContentText("year format is incorrect");
@@ -329,14 +330,14 @@ public class Main extends Application {
 					results.getItems().sort(c);
 					vb.getChildren().remove(results);
 					vb.getChildren().add(results);
-					if(output.isSelected()) {
-						listViewtoFile(results, f);
-						Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + f,
+					if (output.isSelected()) {
+						listViewtoFile(results, path);
+						Alert success = new Alert(AlertType.CONFIRMATION, "Results successfully uploaded to " + path,
 								ButtonType.OK);
 						success.show();
 					}
 				} catch (IOException e1) {
-					alert.setContentText(f + " not found");
+					alert.setContentText(path + " not found");
 					alert.show();
 				} catch (NumberFormatException n) {
 					alert.setContentText("year format is incorrect");
@@ -443,7 +444,7 @@ public class Main extends Application {
 		Button filter = new Button("Filter");
 		ListView allFarmsList = new ListView();
 		filter.setOnAction(e -> {
-			farmTable.getFarms(month2.getText(), year3.getText(), allFarmsList);
+			farmTable.monthlyReport(year3.getText(), month2.getText(), allFarmsList);
 			allFarmsList.getItems().sort(c);
 		});
 		userInput3.getChildren().addAll(month2, year3, filter);
@@ -490,6 +491,7 @@ public class Main extends Application {
 		bt.setOnAction(new EventHandler<ActionEvent>() {
 			/**
 			 * Handle the done button event
+			 * 
 			 * @param arg0 current action event
 			 */
 			@Override
@@ -561,10 +563,11 @@ public class Main extends Application {
 
 		Button bt = new Button("DONE"); // Done Button
 		bt.setOnAction(new EventHandler<ActionEvent>() {
-			Alert alert = new Alert(AlertType.ERROR, "", ButtonType.CANCEL); //Alert window
-			
+			Alert alert = new Alert(AlertType.ERROR, "", ButtonType.CANCEL); // Alert window
+
 			/**
 			 * Handle the done button event
+			 * 
 			 * @param arg0 current action event
 			 */
 			@Override
@@ -650,6 +653,7 @@ public class Main extends Application {
 
 			/**
 			 * Handle the done button event
+			 * 
 			 * @param arg0 current action event
 			 */
 			@Override
@@ -658,9 +662,11 @@ public class Main extends Application {
 					String ID = farmID.getText();
 					String[] dateArray = date.getText().split("-");
 					checkDate(dateArray);
+					// CHECK IF FARM ID EXISTS
 					if (farmTable.get(ID) == null) {
 						throw new NullPointerException();
 					}
+					// REMOVE DATA
 					farmTable.get(ID).remove(date.getText());
 					Alert success = new Alert(AlertType.CONFIRMATION, "Data has been successfully removed",
 							ButtonType.OK);
@@ -677,9 +683,10 @@ public class Main extends Application {
 			}
 		});
 		add.setOnAction(new EventHandler<ActionEvent>() {
-			
+
 			/**
 			 * Handle the done button event
+			 * 
 			 * @param arg0 current action event
 			 */
 			@Override
@@ -688,13 +695,9 @@ public class Main extends Application {
 					String ID = farmID.getText();
 					int weightVal = Integer.parseInt(weight.getText());
 					String[] dateArray = date.getText().split("-");
-					if (dateArray.length != 3) {
-						throw new IllegalArgumentException();
-					} else {
-						if (dateArray[0].length() != 4 && dateArray[1].length() != 2 && dateArray[2].length() != 2) {
-							throw new IllegalArgumentException();
-						}
-					}
+					// CHECK IF DATE IS IN VALID FORMAT
+					checkDate(dateArray);
+					// CHECK IF FARM EXISTS
 					if (farmTable.get(ID) == null) {
 						throw new NullPointerException();
 					}
@@ -738,9 +741,11 @@ public class Main extends Application {
 		if (dateArray.length != 3) {
 			throw new IllegalArgumentException(Arrays.toString(dateArray));
 		} else {
+			// Check string formatting
 			if (dateArray[0].length() != 4 && dateArray[1].length() != 2 && dateArray[2].length() != 2) {
 				throw new IllegalArgumentException(Arrays.toString(dateArray));
 			}
+			// Check value qualifications
 			if (Integer.parseInt(dateArray[1]) > 12 || Integer.parseInt(dateArray[2]) > 31) {
 				throw new IllegalArgumentException(Arrays.toString(dateArray));
 			}
@@ -766,14 +771,21 @@ public class Main extends Application {
 		fileInput.setPromptText("File path (.csv)");
 		fileInput.setFocusTraversable(false);
 		upload.getChildren().addAll(new Label("Enter Path of File: "), fileInput);
-		Button bt = new Button("DONE"); // Done Button
+
+		HBox buttons = new HBox();
+		Button bt = new Button("Upload"); // Upload Button
+		Button afterUpload = new Button("Data Interaction ->"); // Data interaction after file upload button
+		afterUpload.setOnAction(e -> uF.close());
+		buttons.getChildren().addAll(bt, afterUpload);
+		afterUpload.setVisible(false);
 
 		bt.setOnAction(new EventHandler<ActionEvent>() {
-			Alert alert = new Alert(AlertType.ERROR, "", ButtonType.OK, ButtonType.CANCEL); //Alert window
-			Optional<ButtonType> response = null; //Response of alert
-			
+			Alert alert = new Alert(AlertType.ERROR, "", ButtonType.OK, ButtonType.CANCEL); // Alert window
+			Optional<ButtonType> response = null; // Response of alert
+
 			/**
 			 * Handle the done button event
+			 * 
 			 * @param arg0 current action event
 			 */
 			@Override
@@ -782,8 +794,10 @@ public class Main extends Application {
 					List<String[]> data = fileRead(fileInput.getText());
 					data.remove(0);
 					for (String[] d : data) {
+						// CHECK IF DATE IS VALID
 						checkDate(d[0].split("-"));
 						try {
+							// ADD FARM DATA
 							farmTable.insert(d[1], new Farm(d[1], Integer.parseInt(d[2]), d[0]));
 						} catch (NumberFormatException n) {
 							throw new NumberFormatException(d[2]);
@@ -792,6 +806,7 @@ public class Main extends Application {
 					Alert success = new Alert(AlertType.CONFIRMATION, "Data has been successfully uploaded",
 							ButtonType.OK);
 					success.show();
+					afterUpload.setVisible(true);
 				} catch (IOException e) {
 					alert.setContentText("Did not input valid file path. Press OK to try again.");
 					response = alert.showAndWait();
@@ -823,7 +838,7 @@ public class Main extends Application {
 		});
 
 		VBox vb = new VBox(); // VBox to put all 4 elements together
-		vb.getChildren().addAll(upload, bt);
+		vb.getChildren().addAll(upload, buttons);
 		vb.setSpacing(25);
 
 		root.setCenter(vb);
@@ -848,7 +863,6 @@ public class Main extends Application {
 		try (Stream<String> stream = Files.lines(Paths.get(f))) {
 			List<String[]> data = stream.filter(u -> u.split(",").length == 3).map(m -> m.split(","))
 					.collect(Collectors.toList());
-			// long lines = stream.count();
 			List<String> error = getFileErrors(f);
 			if (error.size() > 0) {
 				throw new IndexOutOfBoundsException(error.toString());
